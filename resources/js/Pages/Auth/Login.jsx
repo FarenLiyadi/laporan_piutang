@@ -138,7 +138,7 @@ export default function Login({ status, canResetPassword }) {
                     )*/}
 
                     <PrimaryButton
-                        className="ms-4 text-white bg-yellow-600"
+                        className="ms-4 text-white bg-yellow-800"
                         disabled={processing}
                     >
                         Log in

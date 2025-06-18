@@ -23,6 +23,12 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
-        "react-icons": "^5.2.1"
+        "react-icons": "^5.2.1",
+        "@heroicons/react": "2.0.18",
+        "@material-tailwind/react": "^2.1.4",
+        "react-to-print": "^2.15.1",
+        "react-toastify": "^10.0.5",
+        "react-router-dom": "6.17.0",
+        "@develoka/angka-terbilang-js": "^1.4.2"
     }
 }
