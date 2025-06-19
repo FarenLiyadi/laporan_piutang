@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AccessRightController;
 use App\Http\Controllers\AkunBankController;
 use App\Http\Controllers\ProfileController;
@@ -18,7 +19,8 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
-    })->name('dashboard');
+    })->middleware('access.check:'. MenuDB::DASHBOARD_AR .',r')->name('dashboard');
+   
 
    
 
@@ -92,15 +94,14 @@ Route::middleware('auth')->group(function () {
         });
 
         
-        //untuk access controller
-            // Route::controller(AccessController::class)->group(function () {
-            //     Route::get('/access-not-allowed', 'accessNotAllowed')->name('access.not.allowed');
-            //     Route::get('/not-allowed', 'clientAccessNotAllowed')->name('client.access.not.allowed');
-            // }); 
+        
     // disabled
         // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
+Route::controller(AccessController::class)->group(function () {
+    Route::get('/access-not-allowed', 'accessNotAllowed')->name('access.not.allowed');
+    Route::get('/not-allowed', 'clientAccessNotAllowed')->name('client.access.not.allowed');
+});
 require __DIR__.'/auth.php';
