@@ -1,0 +1,509 @@
+import { useState, useEffect } from "react";
+import { Head } from "@inertiajs/react";
+import axios from "axios";
+import Pagination from "@/Components/Pagination";
+import NewAuthenticated from "@/Layouts/NewAuthenticated";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Dropdown from "@/Components/Dropdown";
+import { RotatingLines } from "react-loader-spinner";
+import { confirmDeleteWithInput } from "@/utils/confirmDeleteWithInput";
+
+export default function listUser({ auth }) {
+    const Title = "Daftar User";
+    const [page, setPage] = useState(1);
+    const [length, setLength] = useState(20);
+    const [totalPages, setTotalPages] = useState(0);
+
+    const [username, setUsername] = useState("");
+    const [dataListUser, setDataListUser] = useState({ item: [], total: 0 });
+    const [counter, setCounter] = useState(1);
+    const [loading, setLoading] = useState(false);
+
+    async function search() {
+        const response = await getListUser(page, length, username);
+        if (response) {
+            setLoading(false);
+        }
+
+        setCounter((page - 1) * length + 1);
+        setTotalPages(Math.ceil(response.total / length));
+        setDataListUser(response);
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                search();
+            } catch (error) {
+                toast.error(error, {
+                    position: "top-right",
+                    autoClose: 3000,
+                    closeOnClick: true,
+                    draggable: true,
+                    theme: "light",
+                });
+                console.error(error);
+            }
+        };
+
+        fetchData();
+    }, [username, length, page]);
+
+    function handleChangeLength() {
+        let selectedLength = document.getElementById("src_length").value;
+        setPage(1);
+        setLength(parseInt(selectedLength));
+    }
+
+    function prevBtn() {
+        if (page > 1) {
+            setPage(page - 1);
+        }
+    }
+
+    function nextBtn() {
+        if (page < totalPages) {
+            setPage(page + 1);
+        }
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === "Enter") {
+            let tmp = e.target.value.trim();
+
+            if (isNaN(tmp) || tmp === "" || tmp.includes(" ")) {
+                toast.error("Please enter a valid number", {
+                    position: "top-right",
+                    autoClose: 3000,
+                    closeOnClick: true,
+                    draggable: true,
+                    theme: "light",
+                });
+                return;
+            }
+
+            tmp = Number(tmp);
+
+            if (tmp <= 0 || tmp > totalPages) {
+                toast.error("Invalid Input", {
+                    position: "top-right",
+                    autoClose: 3000,
+                    closeOnClick: true,
+                    draggable: true,
+                    theme: "light",
+                });
+                return;
+            }
+
+            setPage(tmp);
+        }
+    }
+
+    async function deleteUser(e, id) {
+        e.preventDefault();
+        const confirmed = await confirmDeleteWithInput();
+        if (!confirmed) return;
+        const data = {
+            actor_id: auth.user.id,
+            item_id: id,
+        };
+
+        try {
+            const response = await axios.post("/admin/delete-user", data);
+            if (response.data.code !== 0) {
+                toast.error(response.data.msg, {
+                    position: "top-right",
+                    autoClose: 3000,
+                    closeOnClick: true,
+                    draggable: true,
+                    theme: "light",
+                });
+                throw new Error(response.data.msg);
+            }
+            // Untuk Nofitikasi
+            toast.success(response.data.msg, {
+                position: "top-right",
+                autoClose: 3000,
+                closeOnClick: true,
+                draggable: true,
+                theme: "light",
+            });
+            // Reload Data
+            search();
+        } catch (error) {
+            toast.error(error, {
+                position: "top-right",
+                autoClose: 3000,
+                closeOnClick: true,
+                draggable: true,
+                theme: "light",
+            });
+            console.error("There was a problem with the Axios request:", error);
+            throw error;
+        }
+    }
+
+    async function getListUser(page = 1, length = 10, username) {
+        let parameter = {
+            page: page,
+            length: length,
+            username: username,
+        };
+
+        try {
+            const response = await axios.get("/admin/list-user-request", {
+                params: parameter,
+            });
+            if (response.data.code !== 0) {
+                toast.error(response.data.msg, {
+                    position: "top-right",
+                    autoClose: 3000,
+                    closeOnClick: true,
+                    draggable: true,
+                    theme: "light",
+                });
+                throw new Error(response.data.msg);
+            }
+            return response.data.data;
+        } catch (error) {
+            toast.error(error, {
+                position: "top-right",
+                autoClose: 3000,
+                closeOnClick: true,
+                draggable: true,
+                theme: "light",
+            });
+            setLoading(false);
+            throw error;
+        }
+    }
+
+    function pageAddUser() {
+        window.location.href = "/admin/create-user";
+    }
+
+    function resetPencarian() {
+        const inputs = document.querySelectorAll(
+            ".src_keyup, .src_change, .src_date"
+        );
+        inputs.forEach(function (input) {
+            if (input.type === "checkbox" || input.type === "radio") {
+                input.checked = false;
+            } else if (input.tagName === "SELECT") {
+                // Handle Select2 elements
+                if (input.classList.contains("js-select2")) {
+                    // Use Select2's method to reset
+                    $(input).val(null).trigger("change");
+                } else {
+                    input.selectedIndex = 0;
+                }
+            } else {
+                input.value = "";
+
+                if (input._flatpickr) {
+                    input._flatpickr.clear();
+                }
+            }
+        });
+
+        setUsername("");
+
+        setPage(1);
+    }
+
+    return (
+        <NewAuthenticated>
+            <Head title={Title} />
+            {loading && (
+                <div className="fixed inset-0  z-[99] flex items-center justify-center">
+                    <div className="flex flex-col items-center">
+                        <RotatingLines
+                            visible={true}
+                            height="48"
+                            width="48"
+                            strokeWidth="5"
+                            animationDuration="1"
+                            ariaLabel="rotating-lines-loading"
+                            strokeColor="white"
+                        />
+                        <p className="mt-4 text-xl font-semibold text-white">
+                            Loading Data...
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <div className="pt-5">
+                <div className="flex justify-between my-auto sm:px-6 lg:px-8 space-y-6">
+                    <div></div>
+
+                    {/* BreadCrumb Navigation */}
+                    <nav className="flex" aria-label="Breadcrumb">
+                        <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                            <li className="inline-flex items-center">
+                                <a
+                                    href="/"
+                                    className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-white"
+                                >
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li aria-current="page">
+                                <div className="flex items-center">
+                                    <svg
+                                        className="rtl:rotate-180 w-3 h-3 text-white mx-1"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 6 10"
+                                    >
+                                        <path
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="m1 9 4-4-4-4"
+                                        />
+                                    </svg>
+                                    <span className="ms-1 text-sm font-medium text-white md:ms-2 ">
+                                        {Title}
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <div className="py-5">
+                <div className="mx-auto sm:px-6 lg:px-8 space-y-6">
+                    <div className="p-4 sm:p-8 bg-[#212121]  shadow sm:rounded-lg">
+                        <div className="overflow-auto">
+                            <div className="flex justify-between items-center">
+                                <label className="text-white font-bold text-3xl">
+                                    Pencarian
+                                </label>
+                                <button
+                                    onClick={resetPencarian}
+                                    className="text-white  bg-[#e49f28]  hover:text-gray-200 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150 font-bold py-2 px-4 rounded-lg"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+                            <div className="my-2 grid grid-flow-col auto-cols-max gap-2">
+                                <div className="">
+                                    <label
+                                        htmlFor="nama"
+                                        className="block mb-2 font-medium text-white dark:text-dark"
+                                    >
+                                        Nama
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="nama"
+                                        placeholder="username"
+                                        className="src_change bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#e49f28] focus:border-[#e49f28] block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-dark dark:focus:ring-[#e49f28] dark:focus:border-[#e49f28]"
+                                        onChange={(username) => {
+                                            setUsername(username.target.value);
+                                            setPage(1);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="pb-5">
+                <div className="mx-auto sm:px-6 lg:px-8 space-y-6">
+                    <div className="p-4 sm:p-8 bg-[#212121] dark:bg-[#e49f28] shadow sm:rounded-lg  overflow-x-auto">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-3xl text-white font-extrabold">
+                                {Title}
+                            </h2>
+
+                            <button
+                                type="button"
+                                onClick={pageAddUser}
+                                className="text-white  bg-[#e49f28] dark:bg-[#e49f28] hover:text-gray-200 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150 font-bold py-1 px-2 rounded"
+                                title="Tambah"
+                            >
+                                <i className="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div className="pt-4 table-auto text-white w-full">
+                            <table className="border-collapse w-full border border-slate-500">
+                                <thead>
+                                    <tr>
+                                        <th className="border border-slate-600  py-2">
+                                            #
+                                        </th>
+                                        <th className="border border-slate-600  py-2">
+                                            Nama
+                                        </th>
+                                        <th className="border border-slate-600  py-2">
+                                            Aktif
+                                        </th>
+                                        <th className="border border-slate-600  py-2">
+                                            Hak Akses
+                                        </th>
+                                        <th className="border border-slate-600  py-2">
+                                            Tanggal dibuat
+                                        </th>
+                                        <th className="border border-slate-600  py-2">
+                                            Aksi
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    {dataListUser.total === 0 ? (
+                                        <tr>
+                                            <td
+                                                colSpan="5"
+                                                className="text-center font-bold text-2xl p-2"
+                                            >
+                                                No Data Found
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        dataListUser.item.map((user, index) => {
+                                            const accessRight = JSON.parse(
+                                                localStorage.getItem(
+                                                    "AccessRight"
+                                                ) || "[]"
+                                            );
+                                            const foundAccess =
+                                                accessRight.find(
+                                                    (access) =>
+                                                        access[0] ===
+                                                        user.access_id
+                                                );
+                                            const accessName = foundAccess
+                                                ? foundAccess[1]
+                                                : "-";
+                                            return (
+                                                <tr key={index}>
+                                                    <td className="text-center border border-slate-600 px-2">
+                                                        {counter + index}
+                                                    </td>
+                                                    <td className="text-start border border-slate-700 px-2">
+                                                        {user.username}
+                                                    </td>
+                                                    <td className="text-center  border border-slate-700 px-1">
+                                                        <p
+                                                            className={`${
+                                                                user.is_enabled ==
+                                                                1
+                                                                    ? "bg-green-500"
+                                                                    : "bg-red-500"
+                                                            } rounded-lg px-1`}
+                                                        >
+                                                            {user.is_enabled ==
+                                                            1
+                                                                ? "Enabled"
+                                                                : "Disabled"}
+                                                        </p>
+                                                    </td>
+                                                    <td className="text-center border border-slate-700 px-0">
+                                                        {accessName}
+                                                    </td>
+                                                    <td className="text-center border border-slate-700 px-2">
+                                                        {new Date(
+                                                            user.created_at
+                                                        ).toLocaleDateString(
+                                                            "id-ID",
+                                                            {
+                                                                weekday: "long",
+                                                                day: "2-digit",
+                                                                month: "long",
+                                                                year: "numeric",
+                                                            }
+                                                        )}
+                                                    </td>
+                                                    <td className="text-center border border-slate-700 px-2 py-1">
+                                                        <Dropdown className="absolute">
+                                                            <Dropdown.Trigger>
+                                                                <span className="inline-flex rounded-md">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="inline-flex items-center text-xs md:text-sm px-1 py-1 md:px-3 md:py-2 border border-transparent leading-4 font-medium rounded-md text-white dark:text-gray-400 bg-[#e49f28] dark:bg-[#e49f28] hover:text-gray-200 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
+                                                                    >
+                                                                        Aksi
+                                                                        <svg
+                                                                            className="ms-1 md:ms-2 -me-0.5 h-4 w-4"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            viewBox="0 0 20 20"
+                                                                            fill="currentColor"
+                                                                        >
+                                                                            <path
+                                                                                fillRule="evenodd"
+                                                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                                                clipRule="evenodd"
+                                                                            />
+                                                                        </svg>
+                                                                    </button>
+                                                                </span>
+                                                            </Dropdown.Trigger>
+
+                                                            <Dropdown.Content>
+                                                                <div className="relative z-50">
+                                                                    <a
+                                                                        className={
+                                                                            "block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#e49f28] focus:outline-none focus:bg-gray-100 dark:focus:bg-[#e49f28] transition duration-150 ease-in-out "
+                                                                        }
+                                                                        href={`/admin/detail-user?id=${user.id}`}
+                                                                    >
+                                                                        Detail
+                                                                    </a>
+                                                                    <a
+                                                                        className={
+                                                                            "block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#e49f28] focus:outline-none focus:bg-gray-100 dark:focus:bg-[#e49f28] transition duration-150 ease-in-out "
+                                                                        }
+                                                                        href={`/admin/update-user?id=${user.id}`}
+                                                                    >
+                                                                        Edit
+                                                                    </a>
+                                                                    <p
+                                                                        className={
+                                                                            "block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#e49f28] focus:outline-none focus:bg-gray-100 dark:focus:bg-[#e49f28] transition duration-150 ease-in-out "
+                                                                        }
+                                                                        onClick={(
+                                                                            event
+                                                                        ) =>
+                                                                            deleteUser(
+                                                                                event,
+                                                                                user.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Hapus
+                                                                    </p>
+                                                                </div>
+                                                            </Dropdown.Content>
+                                                        </Dropdown>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        <Pagination
+                            onChange={handleChangeLength}
+                            prevBtn={prevBtn}
+                            nextBtn={nextBtn}
+                            handleKeyDown={handleKeyDown}
+                            isPrevDisabled={page == 1}
+                            isNextDisabled={page == totalPages}
+                            page={page}
+                            totalPage={totalPages}
+                        />
+                    </div>
+                </div>
+            </div>
+        </NewAuthenticated>
+    );
+}

@@ -22,7 +22,9 @@ class User extends Authenticatable
     protected $fillable = [
         'id',
         'access_id',
+        'is_enabled',
         'username',
+        'phone_number',
         'email',
         'password',
         'is_deleted',
@@ -55,5 +57,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

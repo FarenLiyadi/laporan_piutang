@@ -148,14 +148,14 @@ class AccessRightController extends Controller
             ];
 
             // User Activity
-            // UserActivity::create([
-            //     "id"            => Uuid::uuid1(),
-            //     "username"      => $adminInfo['username'],
-            //     "description"   => "Create New Hak Akses",
-            //     "activity_type" => UserActivity::CREATE,
-            //     "new_data"      => json_encode($newData),
-            //     "created_by"    => $actorId,
-            // ]);
+            UserActivity::create([
+                "id"            => Uuid::uuid1(),
+                "username"      => $adminInfo['username'],
+                "description"   => "Create New Hak Akses",
+                "activity_type" => UserActivity::CREATE,
+                "new_data"      => json_encode($newData),
+                "created_by"    => $actorId,
+            ]);
 
             $this->code = 0;
             $this->message = "Add New Access Right Success";
@@ -299,15 +299,15 @@ class AccessRightController extends Controller
             Cache::forget('access_rights:'.$itemInfo->id);
 
             // User Activity
-            // UserActivity::create([
-            //     "id"            => Uuid::uuid1(),
-            //     "username"      => $userInfo->username,
-            //     "description"   => "Update Access Right ". $itemInfo->access_name,
-            //     "activity_type" => UserActivity::UPDATE,
-            //     'old_data'      => json_encode($oldData),
-            //     'new_data'      => json_encode($newData),
-            //     "created_by"    => $actorId,
-            // ]);
+            UserActivity::create([
+                "id"            => Uuid::uuid1(),
+                "username"      => $userInfo->username,
+                "description"   => "Update Access Right ". $itemInfo->access_name,
+                "activity_type" => UserActivity::UPDATE,
+                'old_data'      => json_encode($oldData),
+                'new_data'      => json_encode($newData),
+                "created_by"    => $actorId,
+            ]);
 
             $this->code = 0;
             $this->message = "Update Access Right Success";
