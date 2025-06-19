@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccessRightController;
+use App\Http\Controllers\AkunBankController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\UserActivityController;
@@ -22,6 +23,13 @@ Route::middleware('auth')->group(function () {
    
 
     Route::prefix('/admin')->group(function () {
+
+        Route::controller(AkunBankController::class)->group(function () {
+            Route::get('/list-bank', 'index')->name('list.bank.view')->middleware('access.check:'. MenuDB::BANK_AR .',r');
+            Route::get('/list-bank-request', 'listBank')->middleware('access.check:'. MenuDB::BANK_AR .',r');
+            Route::post('/create-bank','store')->middleware('access.check:'. MenuDB::BANK_AR .',c');
+            Route::post('/delete-bank','destroy')->middleware('access.check:'. MenuDB::BANK_AR .',d');
+        });
 
         Route::controller(AccessRightController::class)->group(function () {
             Route::get('/list-access-right', 'listAccessRightView')->name('list.access-right.view')->middleware('access.check:'. MenuDB::ACCESS_RIGHT_AR .',r');

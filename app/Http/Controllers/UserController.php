@@ -94,15 +94,15 @@ class UserController extends Controller
             $itemInfo->save();
 
             // User Activity
-            // UserActivity::create([
-            //     "id"            => Uuid::uuid1(),
-            //     "username"      => $itemInfo->username,
-            //     "description"   => "Self Change Password ". $itemInfo->username,
-            //     "activity_type" => (int) UserActivity::UPDATE,
-            //     "old_data"      => $oldData,
-            //     "new_data"      => $itemInfo->toArray(),
-            //     "created_by"    => $actorId,
-            // ]);
+            UserActivity::create([
+                "id"            => Uuid::uuid1(),
+                "username"      => $itemInfo->username,
+                "description"   => "Self Change Password ". $itemInfo->username,
+                "activity_type" => (int) UserActivity::UPDATE,
+                "old_data"      => $oldData,
+                "new_data"      => $itemInfo->toArray(),
+                "created_by"    => $actorId,
+            ]);
 
             $this->code = 0;
             $this->message = "Change Password Success";

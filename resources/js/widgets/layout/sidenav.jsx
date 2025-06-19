@@ -392,7 +392,10 @@ export function Sidenav({ access }) {
                                         menuCode={ACCESS_CODES.BANK}
                                         action="read"
                                     >
-                                        <li key={"akun-bank"} className="max-w">
+                                        <li
+                                            key={"akun-bank"}
+                                            className="max-w mt-2"
+                                        >
                                             <a
                                                 href="/admin/list-bank"
                                                 className=""
