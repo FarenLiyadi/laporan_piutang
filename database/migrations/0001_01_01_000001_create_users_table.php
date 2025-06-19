@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AccessRight;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,10 +17,16 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->char('access_id', 36)->nullable();
             $table->string('username')->unique();
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->tinyInteger('is_deleted')->default(0);
+            $table->char('created_by' , 36);
+            $table->char('updated_by' , 36)->nullable();
+            $table->char('deleted_by' , 36)->nullable();
+            $table->datetime('deleted_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -38,14 +45,16 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+        $access_right = AccessRight::first();
         User::create([
             "id"            => Uuid::uuid1(),
             "username"      => "superadmin",
             // "access_id"     => $access_right->id,
             // "email"         => "superadmin@example.com",
+            "access_id"     => $access_right->id,
             "password"      => Hash::make("12345678"),
             // "roles"         => 1,
-            // "created_by"    => "System",
+            "created_by"    => "System",
         ]);
     }
 

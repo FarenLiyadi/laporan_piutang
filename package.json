@@ -29,6 +29,10 @@
         "react-to-print": "^2.15.1",
         "react-toastify": "^10.0.5",
         "react-router-dom": "6.17.0",
-        "@develoka/angka-terbilang-js": "^1.4.2"
+        "react-loader-spinner": "^6.1.6",
+        "@develoka/angka-terbilang-js": "^1.4.2",
+        "sweetalert2": "^11.19.1",
+        "dayjs": "^1.11.13",
+        "sweetalert2-react-content": "^5.1.0"
     }
 }
