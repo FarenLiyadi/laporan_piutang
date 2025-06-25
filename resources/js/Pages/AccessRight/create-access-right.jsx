@@ -38,6 +38,14 @@ export default function createAccessRight({ auth }) {
                 nama_akses: "Bank",
                 kode_akses: "092",
             },
+            {
+                nama_akses: "Sales",
+                kode_akses: "093",
+            },
+            {
+                nama_akses: "Customers",
+                kode_akses: "091",
+            },
 
             {
                 nama_akses: "Report Finance",

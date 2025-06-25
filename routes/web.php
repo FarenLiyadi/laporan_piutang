@@ -3,8 +3,10 @@
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AccessRightController;
 use App\Http\Controllers\AkunBankController;
+use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\UserActivityController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
@@ -31,6 +33,23 @@ Route::middleware('auth')->group(function () {
             Route::get('/list-bank-request', 'listBank')->middleware('access.check:'. MenuDB::BANK_AR .',r');
             Route::post('/create-bank','store')->middleware('access.check:'. MenuDB::BANK_AR .',c');
             Route::post('/delete-bank','destroy')->middleware('access.check:'. MenuDB::BANK_AR .',d');
+        });
+
+        Route::controller(CustomersController::class)->group(function () {
+            Route::get('/list-customers', 'index')->name('list.customers.view')->middleware('access.check:'. MenuDB::CUSTOMERS_AR .',r');
+            Route::get('/download-file-customers/{id}','accessFile')->middleware('access.check:'. MenuDB::CUSTOMERS_AR .',r');
+            Route::get('/list-customers-request', 'listCustomers')->middleware('access.check:'. MenuDB::CUSTOMERS_AR .',r');
+            Route::post('/create-customers','store')->middleware('access.check:'. MenuDB::CUSTOMERS_AR .',c');
+            Route::post('/update-customers','update')->middleware('access.check:'. MenuDB::CUSTOMERS_AR .',u');
+            Route::post('/delete-customers','destroy')->middleware('access.check:'. MenuDB::CUSTOMERS_AR .',d');
+        });
+        Route::controller(SalesController::class)->group(function () {
+            Route::get('/list-sales', 'index')->name('list.sales.view')->middleware('access.check:'. MenuDB::SALES_AR .',r');
+            Route::get('/download-file-sales/{id}','accessFile')->middleware('access.check:'. MenuDB::SALES_AR .',r');
+            Route::get('/list-sales-request', 'listsales')->middleware('access.check:'. MenuDB::SALES_AR .',r');
+            Route::post('/create-sales','store')->middleware('access.check:'. MenuDB::SALES_AR .',c');
+            Route::post('/update-sales','update')->middleware('access.check:'. MenuDB::SALES_AR .',u');
+            Route::post('/delete-sales','destroy')->middleware('access.check:'. MenuDB::SALES_AR .',d');
         });
 
         Route::controller(AccessRightController::class)->group(function () {
