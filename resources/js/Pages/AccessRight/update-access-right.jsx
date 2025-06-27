@@ -137,6 +137,10 @@ export default function createAccessRight({ auth }) {
                 kode_akses: "091",
             },
             {
+                nama_akses: "Invoices",
+                kode_akses: "100",
+            },
+            {
                 nama_akses: "Sales",
                 kode_akses: "093",
             },

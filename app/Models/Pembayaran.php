@@ -6,26 +6,25 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Customer extends Model
+class Pembayaran extends Model
 {
     use HasFactory, HasUuids;
     protected $fillable = [
         'id',
-        'nama',
-        'alamat',
-        'no_hp',
-        'is_enabled',
-        'document',
+        'invoice_id',
+        'akun_bank_id',
+        'tanggal_nota',
+        'nominal',
+        'catatan',
         'is_deleted',
+        'created_at',
         'created_by',
         'updated_by',
         'deleted_by',
         'deleted_at',
     ];
-
-
-    public function invoices()
-    {
-        return $this->hasMany(Invoices::class);
-    }
+    public function bank()
+{
+    return $this->belongsTo(AkunBank::class, 'akun_bank_id');
+}
 }

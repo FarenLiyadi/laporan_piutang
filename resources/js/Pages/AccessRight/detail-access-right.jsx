@@ -90,6 +90,10 @@ export default function detailAccessRight({ auth }) {
                 nama_akses: "Sales",
                 kode_akses: "093",
             },
+            {
+                nama_akses: "Invoices",
+                kode_akses: "100",
+            },
 
             {
                 nama_akses: "Report Finance",

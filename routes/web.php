@@ -4,6 +4,7 @@ use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AccessRightController;
 use App\Http\Controllers\AkunBankController;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SalesController;
@@ -50,6 +51,22 @@ Route::middleware('auth')->group(function () {
             Route::post('/create-sales','store')->middleware('access.check:'. MenuDB::SALES_AR .',c');
             Route::post('/update-sales','update')->middleware('access.check:'. MenuDB::SALES_AR .',u');
             Route::post('/delete-sales','destroy')->middleware('access.check:'. MenuDB::SALES_AR .',d');
+        });
+
+        Route::controller(InvoicesController::class)->group(function () {
+            Route::get('/list-invoices', 'listInvoicesView')->name('list.invoices.view')->middleware('access.check:'. MenuDB::INVOICES_AR .',r');
+            Route::get('/list-invoices-request', 'listInvoices')->name('list.invoices')->middleware('access.check:'. MenuDB::INVOICES_AR .',r');
+        
+            Route::get('/detail-invoices', 'detailInvoicesView')->name('detail.invoices.view')->middleware('access.check:'. MenuDB::INVOICES_AR .',r');
+            Route::get('/detail-invoices-request', 'detailInvoices')->name('detail.invoices')->middleware('access.check:'. MenuDB::INVOICES_AR .',r');
+        
+            Route::get('/update-invoices', 'updateInvoicesView')->name('update.invoices.view')->middleware('access.check:'. MenuDB::INVOICES_AR .',u');
+            Route::post('/update-invoices', 'updateInvoices')->name('update.invoices')->middleware('access.check:'. MenuDB::INVOICES_AR .',u');
+        
+            Route::post('/delete-invoices', 'deleteInvoices')->name('delete.invoices')->middleware('access.check:'. MenuDB::INVOICES_AR .',d');
+        
+            Route::get('/create-invoices', 'createInvoicesView')->name('create.invoices.view')->middleware('access.check:'. MenuDB::INVOICES_AR .',c');
+            Route::post('/create-invoices', 'createInvoices')->name('create.invoices')->middleware('access.check:'. MenuDB::INVOICES_AR .',c');
         });
 
         Route::controller(AccessRightController::class)->group(function () {

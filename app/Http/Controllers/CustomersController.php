@@ -30,54 +30,90 @@ class CustomersController extends Controller
 
     public function listCustomers(Request $request)
     {
-     
         $length     = $request->input('length', 10);
         $page       = $request->input('page', 1);
-        $namaPaket   = $request->input('namaPaket');
-        
-
+        $namaPaket  = $request->input('namaPaket');
+        $is_disabled  = $request->input('is_disabled');
+        $kondisi  = $request->input('kondisi');
+    
         $validator = Validator::make($request->all(), [
             'length'    => 'required|integer|min:1|max:100',
             'page'      => 'required|integer|min:1',
-            'namaPaket'  => 'nullable|string',
-         
+            'namaPaket' => 'nullable|string',
+            'is_disabled' => 'nullable|in:0,1,2',
+            'kondisi'     => 'nullable|in:0,1,2',
         ]);
-
-        Try {
+    
+        try {
             if ($validator->fails()) {
                 $this->code = 1;
                 throw new Exception($validator->errors()->first());
             }
-            
-
-            $offset     = $length * ($page - 1);
-            $itemInfo   = Customer::query()->where('is_deleted',0);
-
+    
+            $offset = $length * ($page - 1);
+    
+            // Bangun query dasar
+            $query = Customer::with('invoices')
+                ->where('is_deleted', 0);
+    
+            // Filter jika ada namaPaket
             if ($namaPaket) {
-                $itemInfo->where(function ($query) use ($namaPaket) {
-                    $query->where('nama', 'LIKE', "%$namaPaket%")
-                          ->orWhere('no_hp', 'LIKE', "%$namaPaket%");
+                $query->where(function ($q) use ($namaPaket) {
+                    $q->where('nama', 'LIKE', "%$namaPaket%")
+                      ->orWhere('no_hp', 'LIKE', "%$namaPaket%");
                 });
             }
-            
+            if ($is_disabled == 0 || $is_disabled == 1 ) {
+                $query->where('is_enabled',$is_disabled);
+            }
+    
+            // Ambil semua data dulu (untuk filter status manual)
+            $allCustomers = $query->orderByDesc('created_at')->get();
+    
+            // Tambahkan status
+            $filteredCustomers = $allCustomers->map(function ($customer) {
+                $status = true;
+    
+                foreach ($customer->invoices as $invoice) {
+                    $jatuhTempo = Carbon::parse($invoice->jatuh_tempo)->addMonths(6);
+    
+                    if (
+                        $invoice->grand_total > $invoice->total_bayar &&
+                        $jatuhTempo->lt(now())
+                    ) {
+                        $status = false;
+                        break;
+                    }
+                }
+    
+                // Tambahkan status sebagai properti
+                $customer->setAttribute('status', $status);
+                return $customer;
+            });
+    
+             // ✅ Filter berdasarkan kondisi (lunas/kredit)
+            if ($kondisi === 0 || $kondisi === 1 || $kondisi === '0' || $kondisi === '1') {
+                $filteredCustomers = $filteredCustomers->filter(function ($item) use ($kondisi) {
+                    return (int)$item->status === (int)$kondisi;
+                })->values();
+            }
 
-            $response = [
-                "total" => $itemInfo->count(),
-                "item"  => $itemInfo->orderByDesc('created_at')->skip($offset)->take($length)->get(),
-                
+            // Total semua
+            $total = $filteredCustomers->count();
+    
+            // Ambil halaman sesuai offset
+            $items = $filteredCustomers->slice($offset, $length)->values();
+    
+            $this->dataMsg = [
+                'total' => $total,
+                'item'  => $items,
             ];
-            $this->dataMsg  = $response;
-            $this->code     = 0;
-            
+            $this->code = 0;
         } catch (Exception $e) {
             $this->message = $e->getMessage();
         }
-
+    
         return $this->createResponse($this->dataMsg, $this->code, $this->message);
-   
-
-
-        
     }
 
    

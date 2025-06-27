@@ -29,7 +29,8 @@ import Checkbox from "@/Components/Checkbox";
 
 export default function Index({ auth }) {
     const [page, setPage] = useState(1);
-
+    const [status, setstatus] = useState(2);
+    const [kondisi, setkondisi] = useState(2);
     const [length, setLength] = useState(20);
     const [totalPages, setTotalPages] = useState(0);
     const role = auth.user.roles;
@@ -66,7 +67,7 @@ export default function Index({ auth }) {
                     searchBank,
                     role
                 );
-                console.log(response);
+                // console.log(response);
 
                 setCounter((page - 1) * length + 1);
                 setTotalPages(Math.ceil(response.total / length));
@@ -77,19 +78,23 @@ export default function Index({ auth }) {
         };
 
         fetchData();
-    }, [searchBank, role, length, page]);
+    }, [searchBank, role, length, page, status, kondisi]);
 
     async function getListBank(page = 1, length = 10, namaPaket, role) {
         let parameter = {
             page: page,
             length: length,
             namaPaket: searchBank,
+            is_disabled: status,
+            kondisi: kondisi,
         };
 
         try {
             const response = await axios.get("/admin/list-customers-request", {
                 params: parameter,
             });
+            console.log(response);
+
             if (response.data.code !== 0) {
                 console.log("error");
                 throw new Error(response.data.msg);
@@ -273,6 +278,7 @@ export default function Index({ auth }) {
 
     const [open, setOpen] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
+
     const handleOpen = () => {
         setFormData({
             nama: "",
@@ -662,17 +668,74 @@ export default function Index({ auth }) {
                 </CardHeader>
 
                 <CardBody className="overflow-y-scroll  ">
-                    <div className="ml-auto md:mr-4 md:w-56">
-                        <Input
-                            label="Search Customers / Telepon"
-                            className=" text-dark bg-white"
-                            onChange={(e) => setSearchBank(e.target.value)}
-                            color="orange"
-                            type="text"
-                            variant="outlined"
-                            size="sm"
-                        />
+                    <div className="flex flex-col md:flex-row md:items-end gap-4 ml-auto md:mr-4">
+                        {/* Input Search */}
+                        <div className="md:w-56 w-full">
+                            <label
+                                htmlFor="status"
+                                className="block mb-1 text-md font-medium text-white"
+                            >
+                                {" "}
+                                Customer/Hp
+                            </label>
+                            <Input
+                                label="Search Customers / Telepon"
+                                className="text-dark bg-white"
+                                onChange={(e) => setSearchBank(e.target.value)}
+                                color="orange"
+                                type="text"
+                                variant="outlined"
+                                size="sm"
+                            />
+                        </div>
+
+                        {/* Dropdown Status */}
+                        <div className="md:w-56 w-full max-w-sm">
+                            <label
+                                htmlFor="status"
+                                className="block mb-1 text-md font-medium text-white"
+                            >
+                                Status
+                            </label>
+                            <select
+                                id="status"
+                                name="status"
+                                value={status}
+                                onChange={(e) => {
+                                    setstatus(Number(e.target.value));
+                                    setPage(1);
+                                }}
+                                className="w-full text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:ring-gold focus:border-gold dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            >
+                                <option value={2}>Semua</option>
+                                <option value={0}>Tidak aktif</option>
+                                <option value={1}>Aktif</option>
+                            </select>
+                        </div>
+                        <div className="md:w-56 w-full max-w-sm">
+                            <label
+                                htmlFor="status"
+                                className="block mb-1 text-md font-medium text-white"
+                            >
+                                Kondisi
+                            </label>
+                            <select
+                                id="kondisi"
+                                name="kondisi"
+                                value={kondisi}
+                                onChange={(e) => {
+                                    setkondisi(Number(e.target.value));
+                                    setPage(1);
+                                }}
+                                className="w-full text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:ring-gold focus:border-gold dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            >
+                                <option value={2}>Semua</option>
+                                <option value={0}>Tidak sehat</option>
+                                <option value={1}>Sehat</option>
+                            </select>
+                        </div>
                     </div>
+
                     <table className="mt-4 w-full min-w-max mb-16 ">
                         <thead>
                             <tr className="">
@@ -742,7 +805,21 @@ export default function Index({ auth }) {
                                             color="white"
                                             className="flex items-center justify-between gap-2 font-normal leading-none "
                                         >
-                                            Aktif
+                                            Status
+                                        </Typography>
+                                    </div>
+                                </th>
+                                <th
+                                    key="kondisi"
+                                    className="cursor-pointer border border-blue-gray-100 bg-card transition-colors hover:bg-[#3d3d3d]"
+                                >
+                                    <div className=" flex justify-center">
+                                        <Typography
+                                            variant="small"
+                                            color="white"
+                                            className="flex items-center justify-between gap-2 font-normal leading-none "
+                                        >
+                                            Kondisi
                                         </Typography>
                                     </div>
                                 </th>
@@ -843,6 +920,23 @@ export default function Index({ auth }) {
                                                         {e.is_enabled == 0
                                                             ? "Tidak aktif"
                                                             : "Aktif"}
+                                                    </Typography>
+                                                </div>
+                                            </td>
+                                            <td className={`${classes} px-2`}>
+                                                <div className="flex flex-col justify-center">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="white"
+                                                        className={`font-normal text-center ${
+                                                            e.status == 1
+                                                                ? "bg-green-600"
+                                                                : "bg-red-600"
+                                                        } rounded-md`}
+                                                    >
+                                                        {e.status == 0
+                                                            ? "Tidak sehat"
+                                                            : "Sehat"}
                                                     </Typography>
                                                 </div>
                                             </td>

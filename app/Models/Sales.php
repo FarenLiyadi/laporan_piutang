@@ -22,5 +22,8 @@ class Sales extends Model
         'deleted_by',
         'deleted_at',
     ];
-
+    public function invoices()
+    {
+        return $this->hasMany(Invoices::class);
+    }
 }

@@ -14,12 +14,25 @@ export const formatTanggalIndo = (tanggal) => {
         .tz(tanggal.replace(" ", "T"), "Asia/Makassar")
         .format("dddd, D MMMM YYYY");
 };
+export const formatTanggal = (tanggal) => {
+    return dayjs
+        .tz(tanggal.replace(" ", "T"), "Asia/Makassar")
+        .format("D MMMM YYYY");
+};
 export const formatTanggalIndoLengkap = (tanggal) => {
     return dayjs
         .tz(tanggal.replace(" ", "T"), "Asia/Makassar")
-        .format("dddd, D MMMM YYYY [Pukul] HH:mm");
+        .format("D MMMM YYYY[, ] HH:mm");
 };
 
 export const formatJamIndo = (tanggal) => {
     return dayjs.tz(tanggal.replace(" ", "T"), "Asia/Makassar").format("HH:mm");
+};
+
+export const rupiah = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+    }).format(number);
 };
