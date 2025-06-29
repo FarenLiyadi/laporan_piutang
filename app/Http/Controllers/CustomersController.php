@@ -73,10 +73,13 @@ class CustomersController extends Controller
             // Tambahkan status
             $filteredCustomers = $allCustomers->map(function ($customer) {
                 $status = true;
-    
-                foreach ($customer->invoices as $invoice) {
+            
+                // Ambil hanya invoice yang belum dihapus
+                $activeInvoices = $customer->invoices->where('is_deleted', 0);
+            
+                foreach ($activeInvoices as $invoice) {
                     $jatuhTempo = Carbon::parse($invoice->jatuh_tempo)->addMonths(6);
-    
+            
                     if (
                         $invoice->grand_total > $invoice->total_bayar &&
                         $jatuhTempo->lt(now())
@@ -85,8 +88,7 @@ class CustomersController extends Controller
                         break;
                     }
                 }
-    
-                // Tambahkan status sebagai properti
+            
                 $customer->setAttribute('status', $status);
                 return $customer;
             });

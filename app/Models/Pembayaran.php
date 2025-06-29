@@ -24,7 +24,15 @@ class Pembayaran extends Model
         'deleted_at',
     ];
     public function bank()
-{
-    return $this->belongsTo(AkunBank::class, 'akun_bank_id');
-}
+        {
+            return $this->belongsTo(AkunBank::class, 'akun_bank_id');
+        }
+    public function invoice()   
+        {
+            return $this->belongsTo(Invoices::class, 'invoice_id')->where('is_deleted', 0);
+        }
+    public function createdByUser()
+        {
+            return $this->belongsTo(User::class, 'created_by');
+        }
 }

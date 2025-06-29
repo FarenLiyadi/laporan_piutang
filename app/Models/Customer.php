@@ -28,4 +28,8 @@ class Customer extends Model
     {
         return $this->hasMany(Invoices::class);
     }
+    public function activeInvoices()
+    {
+        return $this->hasMany(Invoices::class)->where('is_deleted', 0);
+    }
 }

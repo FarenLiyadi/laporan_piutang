@@ -8,7 +8,7 @@ export default function GuestLayout({ children }) {
                 <Link href="/">
                     {/*<ApplicationLogo className="h-20 w-20 fill-current text-gray-500" />*/}
                     <h1 className="text-white text-4xl font-sans uppercase font-bold">
-                        Indotech Developer
+                        KREDIT SGK
                     </h1>
                 </Link>
             </div>

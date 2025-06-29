@@ -94,6 +94,10 @@ export default function detailAccessRight({ auth }) {
                 nama_akses: "Invoices",
                 kode_akses: "100",
             },
+            {
+                nama_akses: "Pembayaran",
+                kode_akses: "110",
+            },
 
             {
                 nama_akses: "Report Finance",
@@ -286,7 +290,7 @@ export default function detailAccessRight({ auth }) {
                                         readOnly
                                     />
                                 </div>
-                                <div>
+                                {/* <div>
                                     <label
                                         htmlFor="nama"
                                         className="capitalize block mb-2 font-medium text-white"
@@ -301,7 +305,7 @@ export default function detailAccessRight({ auth }) {
                                         checked={for_regist}
                                         disabled
                                     />
-                                </div>
+                                </div>*/}
                             </div>
                             <div className="md:col-span-8 col-span-12 my-2 grid grid-cols-1 auto-rows-max gap-3 overscroll-x-auto">
                                 <div className="text-end">

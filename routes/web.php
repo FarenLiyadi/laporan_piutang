@@ -5,6 +5,7 @@ use App\Http\Controllers\AccessRightController;
 use App\Http\Controllers\AkunBankController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\InvoicesController;
+use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SalesController;
@@ -67,6 +68,29 @@ Route::middleware('auth')->group(function () {
         
             Route::get('/create-invoices', 'createInvoicesView')->name('create.invoices.view')->middleware('access.check:'. MenuDB::INVOICES_AR .',c');
             Route::post('/create-invoices', 'createInvoices')->name('create.invoices')->middleware('access.check:'. MenuDB::INVOICES_AR .',c');
+        });
+        Route::controller(PembayaranController::class)->group(function () {
+            Route::get('/list-pembayaran', 'listPembayaranView')->name('list.pembayaran.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+            Route::get('/list-pembayaran-request', 'listCustomerPembayaran')->name('list.pembayaran')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+            
+            Route::get('/list-pembayaran-user', 'listPembayaranUserView')->name('list.pembayaran.user.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+            Route::get('/list-pembayaran-user-request', 'listPembayaranUser')->name('list.pembayaran.user')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+            
+            Route::get('/pembayaran-user', 'PembayaranView')->name('pembayaran.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+            Route::get('/pembayaran-user-request', 'listInvoicesPembayaran')->name('list.invoices.pembayaran.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+            
+            Route::post('/create-pembayaran', 'createPembayaran')->name('create.pembayaran')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',c');
+            
+            // Route::get('/create-invoices', 'createInvoicesView')->name('create.invoices.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',c');
+
+            // Route::get('/detail-invoices', 'detailInvoicesView')->name('detail.invoices.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+            // Route::get('/detail-invoices-request', 'detailInvoices')->name('detail.invoices')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
+        
+            // Route::get('/update-invoices', 'updateInvoicesView')->name('update.invoices.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',u');
+            // Route::post('/update-invoices', 'updateInvoices')->name('update.invoices')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',u');
+        
+            Route::post('/delete-pembayaran', 'deletePembayaran')->name('delete.pembayaran')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',d');
+        
         });
 
         Route::controller(AccessRightController::class)->group(function () {

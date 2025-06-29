@@ -17,7 +17,7 @@ export const formatTanggalIndo = (tanggal) => {
 export const formatTanggal = (tanggal) => {
     return dayjs
         .tz(tanggal.replace(" ", "T"), "Asia/Makassar")
-        .format("D MMMM YYYY");
+        .format("DD/MM/YY"); // <-- ubah format di sini
 };
 export const formatTanggalIndoLengkap = (tanggal) => {
     return dayjs

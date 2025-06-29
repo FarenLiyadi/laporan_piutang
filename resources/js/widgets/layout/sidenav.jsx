@@ -59,6 +59,7 @@ export function Sidenav({ access }) {
         BANK: "092",
         SALES: "093",
         INVOICES: "100",
+        PEMBAYARAN: "110",
         REPORT_FINANCE: "133",
     };
 
@@ -117,13 +118,14 @@ export function Sidenav({ access }) {
         >
             <div className={`relative`}>
                 <div to="" className=" px-8 text-center mx-auto w-max mb-4">
-                    <div className=" pt-12 lg:pt-8 xl:pt-4 flex w-full justify-center  items-center gap-2">
+                    <div className=" pt-12 lg:pt-8 xl:pt-4 flex w-full  gap-2">
+                        {/**
                         <img src="/img/logo-ct.png" className="w-12" alt="" />
-                        <p className="text-white font-bold uppercase">
-                            Indotech Developer
+                             */}
+                        <p className="text-white text-2xl font-bold text-center uppercase">
+                            KREDIT SGK
                         </p>
                     </div>
-                    <p className="text-white  text-right">Faren Liyadi</p>
                 </div>
                 <IconButton
                     variant="text"
@@ -553,6 +555,40 @@ export function Sidenav({ access }) {
                                         className="font-medium capitalize text-right "
                                     >
                                         Invoices
+                                    </Typography>
+                                </Button>
+                            </a>
+                        </li>
+                    </HasPermission>
+                    <HasPermission
+                        access={access}
+                        menuCode={ACCESS_CODES.PEMBAYARAN}
+                        action="read"
+                    >
+                        <li key={"invoices"}>
+                            <a href="/admin/list-pembayaran" className="">
+                                <Button
+                                    variant={
+                                        route().current(
+                                            "list.pembayaran.view"
+                                        ) ||
+                                        route().current(
+                                            "list.pembayaran.user.view"
+                                        ) ||
+                                        route().current("pembayaran.view")
+                                            ? "gradient"
+                                            : "text"
+                                    }
+                                    color={"white"}
+                                    className="flex items-center gap-4 px-4 capitalize"
+                                    fullWidth
+                                >
+                                    <CurrencyDollarIcon className="w-5 h-5 text-inherit" />
+                                    <Typography
+                                        color="inherit"
+                                        className="font-medium capitalize text-right "
+                                    >
+                                        Pembayaran
                                     </Typography>
                                 </Button>
                             </a>

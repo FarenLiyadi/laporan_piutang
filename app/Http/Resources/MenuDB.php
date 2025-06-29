@@ -17,6 +17,7 @@ class MenuDB extends JsonResource
     const BANK_AR                   = '092';
     const SALES_AR                   = '093';
     const INVOICES_AR                   = '100';
+    const PEMBAYARAN_AR                   = '110';
     const REPORT_FINANCE_AR         = '133';
     
 }

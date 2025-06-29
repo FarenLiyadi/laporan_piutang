@@ -47,6 +47,10 @@ export default function createAccessRight({ auth }) {
                 kode_akses: "100",
             },
             {
+                nama_akses: "Pembayaran",
+                kode_akses: "110",
+            },
+            {
                 nama_akses: "Customers",
                 kode_akses: "091",
             },
@@ -367,7 +371,7 @@ export default function createAccessRight({ auth }) {
                                             </div>
                                         )}
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <label
                                             htmlFor="nama"
                                             className="capitalize block mb-2 font-medium text-white"
@@ -386,7 +390,7 @@ export default function createAccessRight({ auth }) {
                                                 );
                                             }}
                                         />
-                                    </div>
+                                    </div>*/}
                                 </div>
                                 <div className="md:col-span-8 col-span-12 my-2 grid grid-cols-1 auto-rows-max gap-3 overscroll-x-auto">
                                     <div className="text-end">
