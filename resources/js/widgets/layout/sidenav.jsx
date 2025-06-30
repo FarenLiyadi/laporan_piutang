@@ -60,7 +60,8 @@ export function Sidenav({ access }) {
         SALES: "093",
         INVOICES: "100",
         PEMBAYARAN: "110",
-        REPORT_FINANCE: "133",
+        REPORT_PIUTANG_BEREDAR: "130",
+        REPORT_PEMBAYARAN: "132",
     };
 
     const groupAdminAccess = () => {
@@ -88,7 +89,11 @@ export function Sidenav({ access }) {
         // Check if any item matches the criteria
         return access.details.some(
             (item) =>
-                [ACCESS_CODES.BANK].includes(item.access_code) && item.r === 1
+                [
+                    ACCESS_CODES.BANK,
+                    ACCESS_CODES.CUSTOMERS,
+                    ACCESS_CODES.SALES,
+                ].includes(item.access_code) && item.r === 1
         );
     };
 
@@ -101,8 +106,13 @@ export function Sidenav({ access }) {
         // Check if any item matches the criteria
         return access.details.some(
             (item) =>
-                [ACCESS_CODES.REPORT_FINANCE].includes(item.access_code) &&
-                item.r === 1
+                [
+                    ACCESS_CODES.REPORT_PEMBAYARAN,
+                    ACCESS_CODES.REPORT_PIUTANG_BEREDAR,
+                    ACCESS_CODES.REPORT_PIUTANG_JATUH_TEMPO,
+                    ACCESS_CODES.REPORT_PIUTANG_PER_CUSTOMER,
+                    ACCESS_CODES.REPORT_PIUTANG_PER_SALES,
+                ].includes(item.access_code) && item.r === 1
         );
     };
 
@@ -602,15 +612,16 @@ export function Sidenav({ access }) {
                         >
                             <Button
                                 variant={
-                                    route().current("report-meja.view") ||
-                                    route().current("report-meja-user.view") ||
-                                    route().current("report-hadiah.view") ||
                                     route().current(
-                                        "report-hadiah-user.view"
+                                        "report-piutang-beredar.view"
                                     ) ||
-                                    route().current("report-tamu.view") ||
-                                    route().current("report-finance.view") ||
-                                    route().current("report-tamu-user.view")
+                                    route().current(
+                                        "report.piutang.beredar.user.view"
+                                    ) ||
+                                    route().current(
+                                        "report.pembayaran.user.view"
+                                    ) ||
+                                    route().current("report.pembayaran.view")
                                         ? "gradient"
                                         : "text"
                                 }
@@ -641,18 +652,62 @@ export function Sidenav({ access }) {
                                 <div className=" ">
                                     <HasPermission
                                         access={access}
-                                        menuCode={ACCESS_CODES.REPORT_FINANCE}
+                                        menuCode={
+                                            ACCESS_CODES.REPORT_PIUTANG_BEREDAR
+                                        }
                                         action="read"
                                     >
-                                        <li key={"report-finance"}>
+                                        <li key={"report-piutang-beredar"}>
                                             <a
-                                                href="/admin/report-finance"
+                                                href="/admin/report-piutang-beredar"
                                                 className=""
                                             >
                                                 <Button
                                                     variant={
                                                         route().current(
-                                                            "report-finance.view"
+                                                            "report-piutang-beredar.view"
+                                                        ) ||
+                                                        route().current(
+                                                            "report.piutang.beredar.user.view"
+                                                        )
+                                                            ? "gradient"
+                                                            : "text"
+                                                    }
+                                                    color={"white"}
+                                                    className="flex ml-2 mt-2 justify-start  capitalize gap-2 "
+                                                    fullWidth
+                                                >
+                                                    <DocumentTextIcon className="w-5 h-5  text-inherit" />
+                                                    <Typography
+                                                        color="inherit"
+                                                        className="font-medium capitalize text-right "
+                                                    >
+                                                        Report Piutang Beredar
+                                                    </Typography>
+                                                </Button>
+                                            </a>
+                                        </li>
+                                    </HasPermission>
+
+                                    <HasPermission
+                                        access={access}
+                                        menuCode={
+                                            ACCESS_CODES.REPORT_PEMBAYARAN
+                                        }
+                                        action="read"
+                                    >
+                                        <li key={"report-pembayaran"}>
+                                            <a
+                                                href="/admin/report-pembayaran"
+                                                className=""
+                                            >
+                                                <Button
+                                                    variant={
+                                                        route().current(
+                                                            "report.pembayaran.view"
+                                                        ) ||
+                                                        route().current(
+                                                            "report.pembayaran.user.view"
                                                         )
                                                             ? "gradient"
                                                             : "text"
@@ -666,7 +721,7 @@ export function Sidenav({ access }) {
                                                         color="inherit"
                                                         className="font-medium capitalize text-right "
                                                     >
-                                                        Report Finance
+                                                        Report Pembayaran
                                                     </Typography>
                                                 </Button>
                                             </a>

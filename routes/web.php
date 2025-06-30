@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\UserActivityController;
@@ -81,16 +82,20 @@ Route::middleware('auth')->group(function () {
             
             Route::post('/create-pembayaran', 'createPembayaran')->name('create.pembayaran')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',c');
             
-            // Route::get('/create-invoices', 'createInvoicesView')->name('create.invoices.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',c');
-
-            // Route::get('/detail-invoices', 'detailInvoicesView')->name('detail.invoices.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
-            // Route::get('/detail-invoices-request', 'detailInvoices')->name('detail.invoices')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
-        
-            // Route::get('/update-invoices', 'updateInvoicesView')->name('update.invoices.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',u');
-            // Route::post('/update-invoices', 'updateInvoices')->name('update.invoices')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',u');
-        
             Route::post('/delete-pembayaran', 'deletePembayaran')->name('delete.pembayaran')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',d');
         
+        });
+        Route::controller(ReportController::class)->group(function () {
+            // Report piutang beredar
+            Route::get('/report-piutang-beredar', 'reportPiutangBeredarView')->name('report-piutang-beredar.view')->middleware('access.check:'. MenuDB::REPORT_PIUTANG_BEREDAR .',r');
+            Route::get('/report-piutang-beredar-user', 'reportPiutangBeredarUserView')->name('report.piutang.beredar.user.view')->middleware('access.check:'. MenuDB::REPORT_PIUTANG_BEREDAR .',r');
+            Route::get('/report-piutang-beredar-request', 'reportPiutangBeredar')->name('report-piutang-beredar')->middleware('access.check:'. MenuDB::REPORT_PIUTANG_BEREDAR .',r');
+
+            // report pembayaran
+            Route::get('/report-pembayaran', 'reportPembayaranView')->name('report.pembayaran.view')->middleware('access.check:'. MenuDB::REPORT_PEMBAYARAN .',r');
+            Route::get('/report-pembayaran-user', 'reportPembayaranUserView')->name('report.pembayaran.user.view')->middleware('access.check:'. MenuDB::REPORT_PEMBAYARAN .',r');
+            Route::get('/report-pembayaran-request', 'reportPembayaran')->name('report-pembayaran')->middleware('access.check:'. MenuDB::REPORT_PEMBAYARAN .',r');
+
         });
 
         Route::controller(AccessRightController::class)->group(function () {

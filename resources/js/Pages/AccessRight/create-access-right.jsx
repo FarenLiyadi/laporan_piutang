@@ -56,8 +56,13 @@ export default function createAccessRight({ auth }) {
             },
 
             {
-                nama_akses: "Report Finance",
-                kode_akses: "133",
+                nama_akses: "Report Piutang Beredar",
+                kode_akses: "130",
+            },
+
+            {
+                nama_akses: "Report Pembayaran",
+                kode_akses: "132",
             },
         ];
 

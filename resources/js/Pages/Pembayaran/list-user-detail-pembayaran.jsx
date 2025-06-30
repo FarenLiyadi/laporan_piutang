@@ -12,6 +12,19 @@ import { Input, Typography } from "@material-tailwind/react";
 
 export default function listUserPembayaran({ auth }) {
     const title = "List Pembayaran Piutang Customer";
+    const now = new Date();
+
+    const getStartOfMonth = () => {
+        return new Date(now.getFullYear(), now.getMonth(), 0)
+            .toISOString()
+            .slice(0, 10); // format: 'YYYY-MM-DD'
+    };
+
+    const getEndOfMonth = () => {
+        return new Date(now.getFullYear(), now.getMonth() + 1, 1)
+            .toISOString()
+            .slice(0, 10); // format: 'YYYY-MM-DD'
+    };
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [length, setLength] = useState(20);
@@ -19,8 +32,8 @@ export default function listUserPembayaran({ auth }) {
     const [username, setUsername] = useState("");
     const [dataListUser, setDataListUser] = useState({ item: [], total: 0 });
     const [counter, setCounter] = useState(1);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
+    const [startDate, setStartDate] = useState(getStartOfMonth);
+    const [endDate, setEndDate] = useState(getEndOfMonth);
     const rupiah = (number) => {
         return new Intl.NumberFormat("id-ID", {
             style: "currency",
@@ -213,7 +226,7 @@ export default function listUserPembayaran({ auth }) {
     };
     return (
         <NewAuthenticated>
-            <Head title="Daftar Pengeluaran per Customer" />
+            <Head title="Daftar Pembayaran per Customer" />
             {loading && (
                 <div className="fixed inset-0  z-[99] flex items-center justify-center">
                     <div className="flex flex-col items-center">
