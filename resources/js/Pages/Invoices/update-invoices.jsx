@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { rupiah } from "@/utils/formatTanggal";
+import { RotatingLines } from "react-loader-spinner";
 
 export default function createPemberkatan({
     auth,
@@ -27,6 +28,7 @@ export default function createPemberkatan({
     const [nomor_invoice, setnomor_invoice] = useState(invoice.nomor_invoice);
     const [catatan, setcatatan] = useState(invoice.catatan);
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
     // customer
     const [selected, setSelected] = useState(customerList[0]);
     // sales
@@ -79,6 +81,7 @@ export default function createPemberkatan({
             };
 
             try {
+                setLoading(true);
                 console.log(data);
 
                 const response = await axios.post(
@@ -105,6 +108,7 @@ export default function createPemberkatan({
                 );
                 window.location.href = "/admin/list-invoices";
             } catch (error) {
+                setLoading(false);
                 toast.error(error, {
                     position: "top-right",
                     autoClose: 3000,
@@ -119,13 +123,31 @@ export default function createPemberkatan({
                 throw error;
             }
         } else {
+            setLoading(false);
             setErrors(errors);
         }
     }
     return (
         <NewAuthenticated>
             <Head title="Update invoice" />
-
+            {loading && (
+                <div className="fixed inset-0  z-[99] flex items-center justify-center">
+                    <div className="flex flex-col items-center">
+                        <RotatingLines
+                            visible={true}
+                            height="48"
+                            width="48"
+                            strokeWidth="5"
+                            animationDuration="1"
+                            ariaLabel="rotating-lines-loading"
+                            strokeColor="white"
+                        />
+                        <p className="mt-4 text-xl font-semibold text-white">
+                            Loading Data...
+                        </p>
+                    </div>
+                </div>
+            )}
             <div className="pt-5 overflow-auto">
                 <div className="flex justify-between items-baseline my-auto sm:px-6 lg:px-8 space-y-6">
                     <h2 className="text-2xl text-white font-bold">

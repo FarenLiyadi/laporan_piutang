@@ -210,10 +210,10 @@ export function Sidenav({ access }) {
                                         : "text"
                                 }
                                 color={"white"}
-                                className="flex items-center justify-between gap-4 px-4 space-x-4 capitalize"
+                                className="flex items-center mb-2 justify-between gap-4 px-4 space-x-4 capitalize"
                                 fullWidth
                             >
-                                <div className="flex items-center gap-4">
+                                <div className="flex  items-center gap-4">
                                     <UserGroupIcon className="w-5 h-5 text-inherit" />
                                     <Typography
                                         color="inherit"
@@ -262,7 +262,7 @@ export function Sidenav({ access }) {
                                                             : "text"
                                                     }
                                                     color={"white"}
-                                                    className="flex mt-2 ml-2 justify-start  capitalize gap-2 "
+                                                    className="flex ml-2 justify-start  capitalize gap-2 "
                                                     fullWidth
                                                 >
                                                     <UserIcon className="w-5 h-5 text-inherit" />
@@ -283,7 +283,7 @@ export function Sidenav({ access }) {
                                     >
                                         <li
                                             key={"access-right"}
-                                            className="max-w mt-2"
+                                            className="max-w "
                                         >
                                             <a
                                                 href="/admin/list-access-right"
@@ -379,7 +379,7 @@ export function Sidenav({ access }) {
                                         : "text"
                                 }
                                 color={"white"}
-                                className="flex items-center justify-between gap-4 px-4 space-x-4 capitalize"
+                                className="flex items-center mb-2 justify-between gap-4 px-4 space-x-4 capitalize"
                                 fullWidth
                             >
                                 <div className="flex items-center gap-4">
@@ -410,7 +410,7 @@ export function Sidenav({ access }) {
                                     >
                                         <li
                                             key={"akun-bank"}
-                                            className="max-w mt-2"
+                                            className="max-w "
                                         >
                                             <a
                                                 href="/admin/list-bank"
@@ -542,7 +542,11 @@ export function Sidenav({ access }) {
                             <a href="/admin/list-invoices" className="">
                                 <Button
                                     variant={
-                                        route().current("list.invoices.view")
+                                        route().current("list.invoices.view") ||
+                                        route().current(
+                                            "update.invoices.view"
+                                        ) ||
+                                        route().current("create.invoices.view")
                                             ? "gradient"
                                             : "text"
                                     }
@@ -626,7 +630,7 @@ export function Sidenav({ access }) {
                                         : "text"
                                 }
                                 color={"white"}
-                                className="flex items-center justify-between gap-4 px-4 space-x-4 capitalize"
+                                className="flex items-center mb-2 justify-between gap-4 px-4 space-x-4 capitalize"
                                 fullWidth
                             >
                                 <div className="flex items-center gap-4">
@@ -674,7 +678,7 @@ export function Sidenav({ access }) {
                                                             : "text"
                                                     }
                                                     color={"white"}
-                                                    className="flex ml-2 mt-2 justify-start  capitalize gap-2 "
+                                                    className="flex ml-2  justify-start  capitalize gap-2 "
                                                     fullWidth
                                                 >
                                                     <DocumentTextIcon className="w-5 h-5  text-inherit" />

@@ -26,9 +26,11 @@ import { confirmDeleteWithInput } from "@/utils/confirmDeleteWithInput";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Checkbox from "@/Components/Checkbox";
+import { RotatingLines } from "react-loader-spinner";
 
 export default function Index({ auth }) {
     const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
     const [status, setstatus] = useState(2);
     const [kondisi, setkondisi] = useState(2);
     const [length, setLength] = useState(20);
@@ -55,11 +57,13 @@ export default function Index({ auth }) {
                 setCounter((page - 1) * length + 1);
                 setTotalPages(Math.ceil(response.total / length));
                 setDataListPaket(response);
+                setLoading(false);
             } catch (error) {
                 console.error(error);
+                setLoading(false);
             }
         };
-
+        setLoading(true);
         fetchData();
     }, [searchBank, role, length, page, status, kondisi]);
 
@@ -143,6 +147,24 @@ export default function Index({ auth }) {
     }
     return (
         <NewAuthenticated>
+            {loading && (
+                <div className="fixed inset-0  z-[99] flex items-center justify-center">
+                    <div className="flex flex-col items-center">
+                        <RotatingLines
+                            visible={true}
+                            height="48"
+                            width="48"
+                            strokeWidth="5"
+                            animationDuration="1"
+                            ariaLabel="rotating-lines-loading"
+                            strokeColor="white"
+                        />
+                        <p className="mt-4 text-xl font-semibold text-white">
+                            Loading Data...
+                        </p>
+                    </div>
+                </div>
+            )}
             <Card className="h-full bg-card w-full p-4">
                 <CardHeader
                     floated={false}

@@ -18,7 +18,7 @@ export default function reportHadiah({ auth, salesList }) {
 
     // sales
     const [selected2, setSelected2] = useState(null);
-    const title = "Report Piutang Beredar";
+
     const [custName, setcustName] = useState("");
     const [pihak, setPihak] = useState("");
     const [loading, setLoading] = useState(false);
@@ -126,7 +126,9 @@ export default function reportHadiah({ auth, salesList }) {
         setPihak("");
         document.getElementById("jatuh_tempo").selectedIndex = 0;
     }
-
+    const title = `Report Piutang ${jatuh_tempo == 0 ? "Tidak Sehat" : ""} ${
+        jatuh_tempo == 1 ? "Jatuh Tempo" : ""
+    } ${jatuh_tempo == 2 ? "Beredar" : ""}`;
     return (
         <NewAuthenticated>
             <Head title={title} />
@@ -227,6 +229,7 @@ export default function reportHadiah({ auth, salesList }) {
                                     >
                                         <option value={2}>Beredar</option>
                                         <option value={1}>J. Tempo</option>
+                                        <option value={0}>Tidak Sehat</option>
                                     </select>
                                 </div>
                                 <div className="">

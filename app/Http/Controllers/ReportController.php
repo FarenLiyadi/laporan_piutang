@@ -80,6 +80,11 @@ class ReportController extends Controller
             if ($jatuh_tempo == 1) {
                 $query->where('jatuh_tempo', '<', Carbon::today());
             }
+
+            if ($jatuh_tempo == 0) {
+                $sixMonthsAgo = Carbon::today()->subMonths(6);
+                $query->where('jatuh_tempo', '<', $sixMonthsAgo);
+            }
         
             $items = $query->get()
                 ->map(function ($invoice) {
@@ -173,16 +178,7 @@ class ReportController extends Controller
             if (!empty($bankId)) {
                 $query->where('akun_bank_id', $bankId);
             }
-            
-            // ✅ Filter berdasarkan tanggal pembayaran (created_at)
-            // if (!empty($startDate) && !empty($endDate)) {
-            //     $query->whereBetween('created_at', [$startDate, $endDate]);
-            // } elseif (!empty($startDate)) {
-            //     $query->whereDate('created_at', '>=', $startDate);
-            // } elseif (!empty($endDate)) {
-            //     $query->whereDate('created_at', '<=', $endDate);
-            // }
-
+           
             if ($startDate) {
                 $query->whereDate('created_at', '>=', $startDate);
             }
