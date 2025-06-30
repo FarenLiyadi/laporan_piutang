@@ -1,10 +1,9 @@
 import { Head, Link } from "@inertiajs/react";
 import NewAuthenticated from "@/Layouts/NewAuthenticated";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function accessNotAllowrd({ auth }) {
-
+export default function accessNotAllowed({ auth }) {
     return (
         <NewAuthenticated>
             <Head title="Access Not Allowed" />
