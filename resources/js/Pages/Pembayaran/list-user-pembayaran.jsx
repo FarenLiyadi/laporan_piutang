@@ -17,6 +17,7 @@ export default function listUserPembayaran({ auth }) {
     const [username, setUsername] = useState("");
     const [dataListUser, setDataListUser] = useState({ item: [], total: 0 });
     const [counter, setCounter] = useState(1);
+    const [sort, setsort] = useState(0);
     const rupiah = (number) => {
         return new Intl.NumberFormat("id-ID", {
             style: "currency",
@@ -55,7 +56,7 @@ export default function listUserPembayaran({ auth }) {
         };
 
         fetchData();
-    }, [username, length, page]);
+    }, [username, length, page, sort]);
 
     function handleChangeLength() {
         let selectedLength = document.getElementById("src_length").value;
@@ -112,6 +113,7 @@ export default function listUserPembayaran({ auth }) {
             page: page,
             length: length,
             username: username,
+            sort: sort,
         };
 
         try {
@@ -145,6 +147,7 @@ export default function listUserPembayaran({ auth }) {
     function resetPencarian() {
         setUsername("");
         document.getElementById("nama").value = "";
+
         setPage(1);
     }
 
@@ -252,6 +255,28 @@ export default function listUserPembayaran({ auth }) {
                                             setPage(1);
                                         }}
                                     />
+                                </div>
+                                <div className="w-full max-w-sm">
+                                    <label
+                                        htmlFor="sort"
+                                        className="block mb-3 text-md font-medium text-white"
+                                    >
+                                        Sort
+                                    </label>
+                                    <select
+                                        id="sort"
+                                        name="sort"
+                                        value={sort}
+                                        onChange={(e) => {
+                                            setsort(Number(e.target.value));
+                                            setPage(1);
+                                        }}
+                                        className="w-full   text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:ring-gold focus:border-gold dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    >
+                                        <option value={0}>pilih</option>
+                                        <option value={1}>max</option>
+                                        <option value={2}>min</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>

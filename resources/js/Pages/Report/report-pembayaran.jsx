@@ -138,6 +138,36 @@ export default function reportPembayaran({ auth, bank }) {
 
     return (
         <NewAuthenticated>
+            <style>
+                {`
+  @media print {
+    .print-layout {
+      position: relative;
+    }
+    .print-layout::before {
+    content: "";
+    position: absolute;
+    background-color:transparant;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("/img/BG.png"); /* sesuaikan path jika berbeda */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;  /* Full satu halaman */
+    opacity: 0.2;  /* Bisa kamu atur sesuai kontras yang kamu mau */
+    }
+
+    .print-layout * {
+      position: relative;
+      z-index: 999;
+    }
+  }
+`}
+            </style>
             <Head title={title} />
             {loading && (
                 <div className="fixed inset-0  z-[99] flex items-center justify-center">
@@ -438,7 +468,7 @@ export default function reportPembayaran({ auth, bank }) {
 
             {/* Printing */}
             <div className="hidden">
-                <div ref={componentRef} className="print-layout">
+                <div ref={componentRef} className="print-layout relative">
                     {/* Title */}
                     <div className="text-center mb-6">
                         <h2 className="text-3xl font-bold">KREDIT SGK</h2>
@@ -453,7 +483,7 @@ export default function reportPembayaran({ auth, bank }) {
                             <thead>
                                 <tr>
                                     <th className="text-start border border-black text-xl p-2">
-                                        tgl. nota
+                                        tgl. bayar
                                     </th>
                                     <th className="text-start border border-black text-xl p-2">
                                         nomor invoice

@@ -37,10 +37,12 @@ class PembayaranController extends Controller
         $length     = $request->input('length', 10);
         $page       = $request->input('page', 1);
         $username   = $request->input('username');
+        $sort   = $request->input('sort');
     
         $validator = Validator::make($request->all(), [
             'length'    => 'required|integer|min:1|max:100',
             'page'      => 'required|integer|min:1',
+            'sort'      => 'required|integer|in:0,1,2',
             'username'  => 'nullable|string',
         ]);
     
@@ -69,20 +71,27 @@ class PembayaranController extends Controller
 
             // Hitung sisa, lalu filter hanya yang sisa > 0
             $customers = $customers
-                ->map(function ($customer) {
-                    $totalGrand = $customer->activeInvoices->sum('grand_total');
-                    $totalBayar = $customer->activeInvoices->sum('total_bayar');
-                    $selisih = $totalGrand - $totalBayar;
-
-                    $customer->sisa = $selisih > 0 ? $selisih : 0;
-
-                    unset($customer->activeInvoices);
-                    return $customer;
-                })
-                 ->filter(function ($customer) {
-                     return $customer->sisa > 0;
-                 })
-                ->values(); // Penting: reset index agar hasil bersih
+            ->map(function ($customer) {
+                $totalGrand = $customer->activeInvoices->sum('grand_total');
+                $totalBayar = $customer->activeInvoices->sum('total_bayar');
+                $selisih = $totalGrand - $totalBayar;
+        
+                $customer->sisa = $selisih > 0 ? $selisih : 0;
+        
+                unset($customer->activeInvoices);
+                return $customer;
+            })
+            ->filter(function ($customer) {
+                return $customer->sisa > 0;
+            });
+        
+            if ($sort == 1) {
+                $customers = $customers->sortByDesc('sisa')->values(); // Urutkan dari sisa terbesar
+            } elseif ($sort == 2) {
+                $customers = $customers->sortBy('sisa')->values(); // Urutkan dari sisa terkecil
+            } else {
+                $customers = $customers->values(); // Tanpa urutan khusus
+            }
     
             $response = [
                 "total" => $total,

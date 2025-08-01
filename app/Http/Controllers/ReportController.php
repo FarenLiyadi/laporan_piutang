@@ -41,12 +41,14 @@ class ReportController extends Controller
         $userId  = $request->input('user_id');
         $salesman  = $request->input('sales');
         $jatuh_tempo  = $request->input('jatuh_tempo');
+        $sort  = $request->input('sort');
      
 
         $validator = Validator::make($request->all(), [
            
             'userId' => 'nullable|string',
             'jatuh_tempo' => 'nullable|in:0,1,2',
+            'sort' => 'nullable|in:0,1,2',
         ]);
     
         try {
@@ -87,14 +89,24 @@ class ReportController extends Controller
             }
         
             $items = $query->get()
-                ->map(function ($invoice) {
-                    $invoice->sisa = $invoice->grand_total - $invoice->total_bayar;
-                    return $invoice;
-                })
-                ->filter(function ($invoice) {
-                    return $invoice->sisa > 0;
-                })
-                ->values();
+            ->map(function ($invoice) {
+                $invoice->sisa = $invoice->grand_total - $invoice->total_bayar;
+                return $invoice;
+            })
+            ->filter(function ($invoice) {
+                return $invoice->sisa > 0;
+            });
+        
+        if ($sort == 1) {
+            // Sort dari sisa terbesar ke terkecil
+            $items = $items->sortByDesc('sisa')->values();
+        } elseif ($sort == 2) {
+            // Sort dari sisa terkecil ke terbesar
+            $items = $items->sortBy('sisa')->values();
+        } else {
+            // Tanpa sort khusus, hanya reset index
+            $items = $items->values();
+        }
         
             // Hitung total invoice
             $total_invoice = $items->count();

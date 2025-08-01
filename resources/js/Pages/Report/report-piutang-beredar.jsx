@@ -14,7 +14,7 @@ import {
 import Select from "react-select";
 
 export default function reportHadiah({ auth, salesList }) {
-    console.log(salesList);
+    // console.log(salesList);
 
     // sales
     const [selected2, setSelected2] = useState(null);
@@ -26,6 +26,7 @@ export default function reportHadiah({ auth, salesList }) {
     const [total_piutang, settotal_piutang] = useState(0);
     const [total_invoice, settotal_invoice] = useState(0);
     const [total_customer, settotal_customer] = useState(0);
+    const [sort, setsort] = useState(0);
 
     const [data, setData] = useState([]);
 
@@ -43,7 +44,7 @@ export default function reportHadiah({ auth, salesList }) {
         if (response) {
             setLoading(false);
         }
-        console.log(response);
+        // console.log(response);
 
         // setTotals({
         //     undangan: response.item.length,
@@ -80,13 +81,14 @@ export default function reportHadiah({ auth, salesList }) {
         };
 
         fetchData();
-    }, [jatuh_tempo, selected2]);
+    }, [jatuh_tempo, selected2, sort]);
 
     async function getReportTamu(user_id, jatuh_tempo) {
         let parameter = {
             user_id: user_id,
             jatuh_tempo: jatuh_tempo,
             sales: selected2?.value ?? "",
+            sort: sort,
         };
 
         try {
@@ -129,8 +131,39 @@ export default function reportHadiah({ auth, salesList }) {
     const title = `Report Piutang ${jatuh_tempo == 0 ? "Tidak Sehat" : ""} ${
         jatuh_tempo == 1 ? "Jatuh Tempo" : ""
     } ${jatuh_tempo == 2 ? "Beredar" : ""}`;
+
     return (
         <NewAuthenticated>
+            <style>
+                {`
+          @media print {
+            .print-layout {
+              position: relative;
+            }
+            .print-layout::before {
+            content: "";
+            position: absolute;
+            background-color:transparant;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url("/img/BG.png"); /* sesuaikan path jika berbeda */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 100% 100%;  /* Full satu halaman */
+            opacity: 0.2;  /* Bisa kamu atur sesuai kontras yang kamu mau */
+            }
+    
+            .print-layout * {
+              position: relative;
+            z-index: 999;
+            }
+          }
+        `}
+            </style>
             <Head title={title} />
             {loading && (
                 <div className="fixed inset-0  z-[99] flex items-center justify-center">
@@ -191,7 +224,6 @@ export default function reportHadiah({ auth, salesList }) {
                     </nav>
                 </div>
             </div>
-
             <div className="py-5">
                 <div className="mx-auto sm:px-6 lg:px-8 space-y-6">
                     <div className="p-4 sm:p-8 bg-card dark:bg-gray-800 shadow sm:rounded-lg">
@@ -232,6 +264,7 @@ export default function reportHadiah({ auth, salesList }) {
                                         <option value={0}>Tidak Sehat</option>
                                     </select>
                                 </div>
+
                                 <div className="">
                                     <label
                                         htmlFor="sales"
@@ -247,6 +280,28 @@ export default function reportHadiah({ auth, salesList }) {
                                         isSearchable
                                         placeholder="Cari sales..."
                                     />
+                                </div>
+                                <div className="w-full max-w-sm">
+                                    <label
+                                        htmlFor="sort"
+                                        className="block mb-1 text-md font-medium text-white"
+                                    >
+                                        Sort
+                                    </label>
+                                    <select
+                                        id="sort"
+                                        name="sort"
+                                        value={sort}
+                                        onChange={(e) => {
+                                            setsort(Number(e.target.value));
+                                            setPage(1);
+                                        }}
+                                        className="w-full   text-sm  border border-gray-300 bg-gray-50 text-gray-900 focus:ring-gold focus:border-gold dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    >
+                                        <option value={0}>pilih</option>
+                                        <option value={1}>max</option>
+                                        <option value={2}>min</option>
+                                    </select>
                                 </div>
                                 {/* <div className="md:w-56 w-full max-w-sm">
                                     <label
@@ -393,10 +448,9 @@ export default function reportHadiah({ auth, salesList }) {
                     </div>
                 </div>
             </div>
-
             {/* Printing */}
-            <div className="hidden">
-                <div ref={componentRef} className="print-layout">
+            <div className="hidden ">
+                <div ref={componentRef} className="print-layout relative">
                     {/* Title */}
                     <div className="text-center mb-6">
                         <h2 className="text-3xl font-bold">KREDIT SGK</h2>

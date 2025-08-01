@@ -422,7 +422,7 @@ export default function Index({ auth }) {
                             >
                                 <div className="bg-card p-4 rounded-lg ">
                                     <DialogHeader className="text-white">
-                                        Form Tambah Customer
+                                        Form Tambah Sales
                                     </DialogHeader>
 
                                     <DialogBody className="grid gap-4 text-white">
@@ -546,7 +546,7 @@ export default function Index({ auth }) {
                             >
                                 <div className="bg-card p-4 rounded-lg ">
                                     <DialogHeader className="text-white">
-                                        Form Edit Customer
+                                        Form Edit Sales
                                     </DialogHeader>
 
                                     <DialogBody className="grid gap-4 text-white">
