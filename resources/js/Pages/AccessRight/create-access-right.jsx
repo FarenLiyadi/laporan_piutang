@@ -64,6 +64,26 @@ export default function createAccessRight({ auth }) {
                 nama_akses: "Report Pembayaran",
                 kode_akses: "132",
             },
+            {
+                nama_akses: "Unit",
+                kode_akses: "094",
+            },
+            {
+                nama_akses: "Category",
+                kode_akses: "095",
+            },
+            {
+                nama_akses: "Brand",
+                kode_akses: "096",
+            },
+            {
+                nama_akses: "Product",
+                kode_akses: "097",
+            },
+            {
+                nama_akses: "Label",
+                kode_akses: "098",
+            },
         ];
 
         const detail = accessRights;

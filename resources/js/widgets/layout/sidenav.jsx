@@ -26,6 +26,7 @@ import {
     LockClosedIcon,
     GiftTopIcon,
     Cog6ToothIcon,
+    BookmarkIcon,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -58,6 +59,11 @@ export function Sidenav({ access }) {
         CUSTOMERS: "091",
         BANK: "092",
         SALES: "093",
+        UNIT: "094",
+        CATEGORY: "095",
+        BRAND: "096",
+        PRODUCT: "097",
+        LABEL: "098",
         INVOICES: "100",
         PEMBAYARAN: "110",
         REPORT_PIUTANG_BEREDAR: "130",
@@ -529,10 +535,247 @@ export function Sidenav({ access }) {
                                             </a>
                                         </li>
                                     </HasPermission>
+                                    <HasPermission
+                                        access={access}
+                                        menuCode={ACCESS_CODES.BRAND}
+                                        action="read"
+                                    >
+                                        <li
+                                            key={"brand"}
+                                            className="max-w mt-2"
+                                        >
+                                            <a
+                                                href="/admin/list-brand"
+                                                className=""
+                                            >
+                                                <Button
+                                                    variant={
+                                                        route().current(
+                                                            "list.brand.view"
+                                                        )
+                                                            ? "gradient"
+                                                            : "text"
+                                                    }
+                                                    color={"white"}
+                                                    className="flex ml-2  justify-start  capitalize gap-2 "
+                                                    fullWidth
+                                                >
+                                                    <svg
+                                                        className="w-6 h-6 text-inherit"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 640 512"
+                                                    >
+                                                        <path
+                                                            fill="currentColor"
+                                                            d="M320 64C324.6 64 329.2 65 333.4 66.9L521.8 146.8C543.8 156.1 560.2 177.8 560.1 204C559.6 303.2 518.8 484.7 346.5 567.2C329.8 575.2 310.4 575.2 293.7 567.2C121.3 484.7 80.6 303.2 80.1 204C80 177.8 96.4 156.1 118.4 146.8L306.7 66.9C310.9 65 315.4 64 320 64z"
+                                                        />
+                                                    </svg>
+                                                    <Typography
+                                                        color="inherit"
+                                                        className="font-medium capitalize text-right"
+                                                    >
+                                                        Brand
+                                                    </Typography>
+                                                </Button>
+                                            </a>
+                                        </li>
+                                    </HasPermission>
+                                    <HasPermission
+                                        access={access}
+                                        menuCode={ACCESS_CODES.CATEGORY}
+                                        action="read"
+                                    >
+                                        <li
+                                            key={"category"}
+                                            className="max-w mt-2"
+                                        >
+                                            <a
+                                                href="/admin/list-category"
+                                                className=""
+                                            >
+                                                <Button
+                                                    variant={
+                                                        route().current(
+                                                            "list.category.view"
+                                                        )
+                                                            ? "gradient"
+                                                            : "text"
+                                                    }
+                                                    color={"white"}
+                                                    className="flex ml-2  justify-start  capitalize gap-2 "
+                                                    fullWidth
+                                                >
+                                                    <BookmarkIcon className="w-5 h-5 text-inherit" />
+                                                    <Typography
+                                                        color="inherit"
+                                                        className="font-medium capitalize text-right"
+                                                    >
+                                                        Category
+                                                    </Typography>
+                                                </Button>
+                                            </a>
+                                        </li>
+                                        <li
+                                            key={"subcategory"}
+                                            className="max-w mt-2"
+                                        >
+                                            <a
+                                                href="/admin/list-subcategory"
+                                                className=""
+                                            >
+                                                <Button
+                                                    variant={
+                                                        route().current(
+                                                            "list.subcategory.view"
+                                                        )
+                                                            ? "gradient"
+                                                            : "text"
+                                                    }
+                                                    color={"white"}
+                                                    className="flex ml-2  justify-start  capitalize gap-2 "
+                                                    fullWidth
+                                                >
+                                                    <BookmarkIcon className="w-5 h-5 text-inherit" />
+                                                    <Typography
+                                                        color="inherit"
+                                                        className="font-medium capitalize text-right"
+                                                    >
+                                                        Subcategory
+                                                    </Typography>
+                                                </Button>
+                                            </a>
+                                        </li>
+                                    </HasPermission>
+                                    <HasPermission
+                                        access={access}
+                                        menuCode={ACCESS_CODES.UNIT}
+                                        action="read"
+                                    >
+                                        <li key={"unit"} className="max-w mt-2">
+                                            <a
+                                                href="/admin/list-unit"
+                                                className=""
+                                            >
+                                                <Button
+                                                    variant={
+                                                        route().current(
+                                                            "list.unit.view"
+                                                        )
+                                                            ? "gradient"
+                                                            : "text"
+                                                    }
+                                                    color={"white"}
+                                                    className="flex ml-2  justify-start  capitalize gap-2 "
+                                                    fullWidth
+                                                >
+                                                    <svg
+                                                        className="w-6 h-6 text-inherit"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 640 512"
+                                                    >
+                                                        <path
+                                                            fill="currentColor"
+                                                            d="M80 448C53.5 448 32 426.5 32 400L32 240C32 213.5 53.5 192 80 192L104 192L104 296C104 309.3 114.7 320 128 320C141.3 320 152 309.3 152 296L152 192L200 192L200 264C200 277.3 210.7 288 224 288C237.3 288 248 277.3 248 264L248 192L296 192L296 296C296 309.3 306.7 320 320 320C333.3 320 344 309.3 344 296L344 192L392 192L392 264C392 277.3 402.7 288 416 288C429.3 288 440 277.3 440 264L440 192L488 192L488 296C488 309.3 498.7 320 512 320C525.3 320 536 309.3 536 296L536 192L560 192C586.5 192 608 213.5 608 240L608 400C608 426.5 586.5 448 560 448L80 448z"
+                                                        />
+                                                    </svg>
+
+                                                    <Typography
+                                                        color="inherit"
+                                                        className="font-medium capitalize text-right"
+                                                    >
+                                                        Satuan
+                                                    </Typography>
+                                                </Button>
+                                            </a>
+                                        </li>
+                                    </HasPermission>
+                                    <HasPermission
+                                        access={access}
+                                        menuCode={ACCESS_CODES.PRODUCT}
+                                        action="read"
+                                    >
+                                        <li
+                                            key={"product"}
+                                            className="max-w mt-2"
+                                        >
+                                            <a
+                                                href="/admin/list-product"
+                                                className=""
+                                            >
+                                                <Button
+                                                    variant={
+                                                        route().current(
+                                                            "list.product.view"
+                                                        )
+                                                            ? "gradient"
+                                                            : "text"
+                                                    }
+                                                    color={"white"}
+                                                    className="flex ml-2  justify-start  capitalize gap-2 "
+                                                    fullWidth
+                                                >
+                                                    <svg
+                                                        className="w-6 h-6 text-inherit"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 640 512"
+                                                    >
+                                                        <path
+                                                            fill="currentColor"
+                                                            d="M560.3 301.2C570.7 313 588.6 315.6 602.1 306.7C616.8 296.9 620.8 277 611 262.3L563 190.3C560.2 186.1 556.4 182.6 551.9 180.1L351.4 68.7C332.1 58 308.6 58 289.2 68.7L88.8 180C83.4 183 79.1 187.4 76.2 192.8L27.7 282.7C15.1 306.1 23.9 335.2 47.3 347.8L80.3 365.5L80.3 418.8C80.3 441.8 92.7 463.1 112.7 474.5L288.7 574.2C308.3 585.3 332.2 585.3 351.8 574.2L527.8 474.5C547.9 463.1 560.2 441.9 560.2 418.8L560.2 301.3zM320.3 291.4L170.2 208L320.3 124.6L470.4 208L320.3 291.4zM278.8 341.6L257.5 387.8L91.7 299L117.1 251.8L278.8 341.6z"
+                                                        />
+                                                    </svg>
+
+                                                    <Typography
+                                                        color="inherit"
+                                                        className="font-medium capitalize text-right"
+                                                    >
+                                                        Product
+                                                    </Typography>
+                                                </Button>
+                                            </a>
+                                        </li>
+                                    </HasPermission>
                                 </div>
                             )}
                         </li>
                     )}
+                    <HasPermission
+                        access={access}
+                        menuCode={ACCESS_CODES.LABEL}
+                        action="read"
+                    >
+                        <li key={"label"}>
+                            <a href="/admin/list-label" className="">
+                                <Button
+                                    variant={
+                                        route().current("list.label.view")
+                                            ? "gradient"
+                                            : "text"
+                                    }
+                                    color={"white"}
+                                    className="flex items-center gap-4 px-4 capitalize"
+                                    fullWidth
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 384 512"
+                                        className="w-5 h-5 text-inherit"
+                                    >
+                                        <path
+                                            fill="currentColor"
+                                            d="M433.2 103.1L581.4 253.4C609.1 281.5 609.1 326.5 581.4 354.6L425 512.9C415.7 522.3 400.5 522.4 391.1 513.1C381.7 503.8 381.6 488.6 390.9 479.2L547.3 320.8C556.5 311.5 556.5 296.4 547.3 287.1L399 136.9C389.7 127.5 389.8 112.3 399.2 103C408.6 93.7 423.8 93.8 433.1 103.2zM64.1 293.5L64.1 160C64.1 124.7 92.8 96 128.1 96L261.6 96C278.6 96 294.9 102.7 306.9 114.7L450.9 258.7C475.9 283.7 475.9 324.2 450.9 349.2L317.4 482.7C292.4 507.7 251.9 507.7 226.9 482.7L82.9 338.7C70.9 326.7 64.2 310.4 64.2 293.4zM208.1 208C208.1 190.3 193.8 176 176.1 176C158.4 176 144.1 190.3 144.1 208C144.1 225.7 158.4 240 176.1 240C193.8 240 208.1 225.7 208.1 208z"
+                                        />
+                                    </svg>
+                                    <Typography
+                                        color="inherit"
+                                        className="font-medium capitalize text-right "
+                                    >
+                                        Cetak Label
+                                    </Typography>
+                                </Button>
+                            </a>
+                        </li>
+                    </HasPermission>
                     <HasPermission
                         access={access}
                         menuCode={ACCESS_CODES.INVOICES}
