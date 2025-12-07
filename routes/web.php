@@ -3,6 +3,8 @@
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AccessRightController;
 use App\Http\Controllers\AkunBankController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\PembayaranController;
@@ -10,6 +12,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\SubcategoryController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserActivityController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
@@ -53,6 +57,38 @@ Route::middleware('auth')->group(function () {
             Route::post('/create-sales','store')->middleware('access.check:'. MenuDB::SALES_AR .',c');
             Route::post('/update-sales','update')->middleware('access.check:'. MenuDB::SALES_AR .',u');
             Route::post('/delete-sales','destroy')->middleware('access.check:'. MenuDB::SALES_AR .',d');
+        });
+        Route::controller(BrandController::class)->group(function () {
+            Route::get('/list-brand', 'index')->name('list.brand.view')->middleware('access.check:'. MenuDB::BRAND_AR .',r');
+            // Route::get('/download-file-brand/{id}','accessFile')->middleware('access.check:'. MenuDB::BRAND_AR .',r');
+            Route::get('/list-brand-request', 'listbrand')->middleware('access.check:'. MenuDB::BRAND_AR .',r');
+            Route::post('/create-brand','store')->middleware('access.check:'. MenuDB::BRAND_AR .',c');
+            Route::post('/update-brand','update')->middleware('access.check:'. MenuDB::BRAND_AR .',u');
+            Route::post('/delete-brand','destroy')->middleware('access.check:'. MenuDB::BRAND_AR .',d');
+        });
+        Route::controller(UnitController::class)->group(function () {
+            Route::get('/list-unit', 'index')->name('list.unit.view')->middleware('access.check:'. MenuDB::UNIT_AR .',r');
+            // Route::get('/download-file-unit/{id}','accessFile')->middleware('access.check:'. MenuDB::UNIT_AR .',r');
+            Route::get('/list-unit-request', 'listunit')->middleware('access.check:'. MenuDB::UNIT_AR .',r');
+            Route::post('/create-unit','store')->middleware('access.check:'. MenuDB::UNIT_AR .',c');
+            Route::post('/update-unit','update')->middleware('access.check:'. MenuDB::UNIT_AR .',u');
+            Route::post('/delete-unit','destroy')->middleware('access.check:'. MenuDB::UNIT_AR .',d');
+        });
+        Route::controller(CategoryController::class)->group(function () {
+            Route::get('/list-category', 'index')->name('list.category.view')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
+            // Route::get('/download-file-category/{id}','accessFile')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
+            Route::get('/list-category-request', 'listcategory')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
+            Route::post('/create-category','store')->middleware('access.check:'. MenuDB::CATEGORY_AR .',c');
+            Route::post('/update-category','update')->middleware('access.check:'. MenuDB::CATEGORY_AR .',u');
+            Route::post('/delete-category','destroy')->middleware('access.check:'. MenuDB::CATEGORY_AR .',d');
+        });
+        Route::controller(SubcategoryController::class)->group(function () {
+            Route::get('/list-subcategory', 'index')->name('list.subcategory.view')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
+            // Route::get('/download-file-category/{id}','accessFile')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
+            Route::get('/list-subcategory-request', 'listsubcategory')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
+            Route::post('/create-subcategory','store')->middleware('access.check:'. MenuDB::CATEGORY_AR .',c');
+            Route::post('/update-subcategory','update')->middleware('access.check:'. MenuDB::CATEGORY_AR .',u');
+            Route::post('/delete-subcategory','destroy')->middleware('access.check:'. MenuDB::CATEGORY_AR .',d');
         });
 
         Route::controller(InvoicesController::class)->group(function () {

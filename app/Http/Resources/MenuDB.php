@@ -22,11 +22,11 @@ class MenuDB extends JsonResource
   
     const REPORT_PEMBAYARAN         = '132';
 
-        const UNIT = '094';
-        const CATEGORY = '095';
-        const BRAND = '096';
-        const PRODUCT = '097';
-        const LABEL = '098';
+        const UNIT_AR = '094';
+        const CATEGORY_AR = '095';
+        const BRAND_AR = '096';
+        const PRODUCT_AR = '097';
+        const LABEL_AR = '098';
    
 
 }
