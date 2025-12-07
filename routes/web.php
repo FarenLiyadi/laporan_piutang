@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResourceController;
@@ -105,6 +106,40 @@ Route::middleware('auth')->group(function () {
         
             Route::get('/create-invoices', 'createInvoicesView')->name('create.invoices.view')->middleware('access.check:'. MenuDB::INVOICES_AR .',c');
             Route::post('/create-invoices', 'createInvoices')->name('create.invoices')->middleware('access.check:'. MenuDB::INVOICES_AR .',c');
+        });
+        Route::controller(ProductController::class)->group(function () {
+            Route::get('/list-product', 'listProductView')->name('list.product.view')->middleware('access.check:'. MenuDB::PRODUCT_AR .',r');
+            Route::get('/list-product-request', 'listProduct')->name('list.product')->middleware('access.check:'. MenuDB::PRODUCT_AR .',r');
+        
+            Route::get('/detail-product', 'detailProductView')->name('detail.product.view')->middleware('access.check:'. MenuDB::PRODUCT_AR .',r');
+            Route::get('/detail-product-request', 'detailProduct')->name('detail.product')->middleware('access.check:'. MenuDB::PRODUCT_AR .',r');
+        
+            Route::get('/update-product', 'updateProductView')->name('update.product.view')->middleware('access.check:'. MenuDB::PRODUCT_AR .',u');
+            Route::post('/update-product', 'updateProduct')->name('update.product')->middleware('access.check:'. MenuDB::PRODUCT_AR .',u');
+        
+            Route::post('/delete-product', 'deleteProduct')->name('delete.product')->middleware('access.check:'. MenuDB::PRODUCT_AR .',d');
+        
+            Route::get('/create-product', 'createProductView')->name('create.product.view')->middleware('access.check:'. MenuDB::PRODUCT_AR .',c');
+            Route::post('/create-product', 'createProduct')->name('create.product')->middleware('access.check:'. MenuDB::PRODUCT_AR .',c');
+            Route::get('/subcategory-by-category', [ProductController::class, 'getSubcategoryByCategory'])->middleware('access.check:'. MenuDB::PRODUCT_AR .',r');
+
+
+           // Cart pilih produk
+Route::get('/list-label', 'labelView')
+    ->name('product.label')
+    ->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
+
+// Page print -> dari localStorage, frontend only
+Route::get('/print-label', function() {
+    return Inertia::render('Product/PrintLabel');
+})
+->name('product.print')
+->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
+
+Route::get('/search-product', 'searchProduct')
+    ->name('product.search')
+    ->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
+
         });
         Route::controller(PembayaranController::class)->group(function () {
             Route::get('/list-pembayaran', 'listPembayaranView')->name('list.pembayaran.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
