@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Ramsey\Uuid\Uuid;
 
 class SubcategoryController extends Controller
@@ -107,7 +108,11 @@ class SubcategoryController extends Controller
 {
     $validator = Validator::make($request->all(), [
         'category_id' => 'required|string|max:255',
-        'subcategory_name' => 'required|string|max:255|unique:categories,category_name',
+         'subcategory_name' => [
+        'required','string','max:255',
+        Rule::unique('subcategories', 'subcategory_name')
+            ->where(fn($q) => $q->where('category_id', $request->category_id)),
+    ],
         'page'          => 'nullable|integer|min:1',
         'length'        => 'nullable|integer|min:1',
     ]);
@@ -138,7 +143,8 @@ class SubcategoryController extends Controller
         $response = [
             "total" => $data->total(),
             "item"  => $data->items(),
-            "flash" => "Data category berhasil ditambahkan!",
+            "flash" => "Data subcategory berhasil ditambahkan!"
+
         ];
 
         $this->code = 0;
@@ -297,6 +303,65 @@ public function destroy(Request $request)
 }
 
 
+public function createInline(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'category_id' => ['required','integer','exists:categories,id'],
+        'name'        => ['required','string','min:2','max:255'],
+    ]);
+
+    try {
+        if ($validator->fails()) {
+            $this->code = 1;
+            throw new Exception($validator->errors()->first());
+        }
+
+        $categoryId = (int) $request->input('category_id');
+        $name = trim($request->input('name'));
+        $name = preg_replace('/\s+/', ' ', $name);
+
+        // Anti-duplikat PER CATEGORY (case-insensitive)
+        $existing = Subcategory::where('category_id', $categoryId)
+            ->whereRaw('LOWER(subcategory_name) = ?', [mb_strtolower($name)])
+            ->first();
+
+        if ($existing) {
+            $this->code = 0;
+            $this->message = "Subkategori sudah ada, dipilih otomatis.";
+            $this->dataMsg = [
+                'value' => $existing->id,
+                'label' => $existing->subcategory_name,
+            ];
+            return $this->createResponse($this->dataMsg, $this->code, $this->message);
+        }
+
+        $subcategory = Subcategory::create([
+            "category_id"       => $categoryId,
+            "subcategory_name"  => $name,
+        ]);
+
+        UserActivity::create([
+            "id"            => Uuid::uuid1(),
+            "username"      => Auth::user()->username,
+            "description"   => "Create New SubCategory " . $subcategory->subcategory_name,
+            "activity_type" => 1,
+            "created_by"    => Auth::user()->username,
+        ]);
+
+        $this->code = 0;
+        $this->message = "Subkategori berhasil ditambahkan.";
+        $this->dataMsg = [
+            'value' => $subcategory->id,
+            'label' => $subcategory->subcategory_name,
+        ];
+    } catch (Exception $e) {
+        $this->code = 1;
+        $this->message = $e->getMessage();
+        $this->dataMsg = null;
+    }
+
+    return $this->createResponse($this->dataMsg, $this->code, $this->message);
+}
 
 
 }

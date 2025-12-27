@@ -66,12 +66,16 @@ Route::middleware('auth')->group(function () {
             Route::post('/create-brand','store')->middleware('access.check:'. MenuDB::BRAND_AR .',c');
             Route::post('/update-brand','update')->middleware('access.check:'. MenuDB::BRAND_AR .',u');
             Route::post('/delete-brand','destroy')->middleware('access.check:'. MenuDB::BRAND_AR .',d');
+            Route::post('/brand/create-inline', 'createInline')->middleware('access.check:' . MenuDB::BRAND_AR . ',c');
+
         });
         Route::controller(UnitController::class)->group(function () {
             Route::get('/list-unit', 'index')->name('list.unit.view')->middleware('access.check:'. MenuDB::UNIT_AR .',r');
             // Route::get('/download-file-unit/{id}','accessFile')->middleware('access.check:'. MenuDB::UNIT_AR .',r');
             Route::get('/list-unit-request', 'listunit')->middleware('access.check:'. MenuDB::UNIT_AR .',r');
             Route::post('/create-unit','store')->middleware('access.check:'. MenuDB::UNIT_AR .',c');
+            Route::post('/unit/create-inline', 'createInline')->middleware('access.check:' . MenuDB::UNIT_AR . ',c');
+
             Route::post('/update-unit','update')->middleware('access.check:'. MenuDB::UNIT_AR .',u');
             Route::post('/delete-unit','destroy')->middleware('access.check:'. MenuDB::UNIT_AR .',d');
         });
@@ -80,6 +84,8 @@ Route::middleware('auth')->group(function () {
             // Route::get('/download-file-category/{id}','accessFile')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
             Route::get('/list-category-request', 'listcategory')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
             Route::post('/create-category','store')->middleware('access.check:'. MenuDB::CATEGORY_AR .',c');
+            Route::post('/category/create-inline', 'createInline')->middleware('access.check:' . MenuDB::CATEGORY_AR . ',c');
+
             Route::post('/update-category','update')->middleware('access.check:'. MenuDB::CATEGORY_AR .',u');
             Route::post('/delete-category','destroy')->middleware('access.check:'. MenuDB::CATEGORY_AR .',d');
         });
@@ -88,6 +94,8 @@ Route::middleware('auth')->group(function () {
             // Route::get('/download-file-category/{id}','accessFile')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
             Route::get('/list-subcategory-request', 'listsubcategory')->middleware('access.check:'. MenuDB::CATEGORY_AR .',r');
             Route::post('/create-subcategory','store')->middleware('access.check:'. MenuDB::CATEGORY_AR .',c');
+            Route::post('/subcategory/create-inline', 'createInline')->middleware('access.check:' . MenuDB::CATEGORY_AR . ',c');
+
             Route::post('/update-subcategory','update')->middleware('access.check:'. MenuDB::CATEGORY_AR .',u');
             Route::post('/delete-subcategory','destroy')->middleware('access.check:'. MenuDB::CATEGORY_AR .',d');
         });

@@ -2,7 +2,7 @@ import NewAuthenticated from "@/Layouts/NewAuthenticated";
 import { useState, useEffect } from "react";
 import { Head, router } from "@inertiajs/react";
 import axios from "axios";
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import { toast } from "react-toastify";
 import { RotatingLines } from "react-loader-spinner";
 import { rupiah } from "@/utils/formatTanggal";
@@ -11,10 +11,16 @@ export default function CreateProduct({
     auth,
     brandList,
     categoryList,
-    subcategoryList, // kalau gak dipakai, mending hapus dari props
+    subcategoryList, // gak dipakai langsung karena subcategory dependent dari category
     unitList,
+    prefill, // new prop untuk duplicate
 }) {
     const [loading, setLoading] = useState(false);
+
+    // IMPORTANT: props list harus dibungkus jadi state biar bisa ditambah tanpa refresh
+    const [brands, setBrands] = useState(brandList || []);
+    const [categories, setCategories] = useState(categoryList || []);
+    const [units, setUnits] = useState(unitList || []);
 
     const [form, setForm] = useState({
         product_code: "",
@@ -23,8 +29,13 @@ export default function CreateProduct({
         category_id: null,
         subcategory_id: null,
         unit_id: null,
-        retail_price: "", // string biar input enak
+        retail_price: "",
         wholesale_code: "",
+        ...(prefill || {}),
+        retail_price:
+            prefill?.retail_price != null
+                ? String(parseInt(prefill.retail_price, 10))
+                : "",
     });
 
     const [filteredSub, setFilteredSub] = useState([]);
@@ -34,11 +45,34 @@ export default function CreateProduct({
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Dependent dropdown dengan cancel request
+    // helper create inline (brand/category/unit)
+    const createMasterInline = async ({ endpoint, name }) => {
+        const clean = (name || "").trim().replace(/\s+/g, " ");
+        if (clean.length < 2) {
+            toast.error("Nama terlalu pendek");
+            return null;
+        }
+
+        try {
+            const res = await axios.post(endpoint, { name: clean });
+            if (res.data.code !== 0) {
+                toast.error(res.data.msg || "Gagal menambah data");
+                return null;
+            }
+            toast.success(res.data.msg || "Berhasil menambah data");
+            // backend harus return: { value, label }
+            return res.data.data;
+        } catch (err) {
+            console.error(err);
+            toast.error("Server error saat menambah data");
+            return null;
+        }
+    };
+
+    // Dependent dropdown: fetch subcategory by category
     useEffect(() => {
         const categoryId = form.category_id;
 
-        // reset kalau category kosong
         if (!categoryId) {
             setFilteredSub([]);
             setForm((prev) => ({ ...prev, subcategory_id: null }));
@@ -55,13 +89,22 @@ export default function CreateProduct({
                 });
 
                 if (res.data.code === 0) {
-                    setFilteredSub(res.data.data || []);
-                    setForm((prev) => ({ ...prev, subcategory_id: null }));
+                    const list = res.data.data || [];
+                    setFilteredSub(list);
+
+                    // cuma reset kalau subcategory yg sekarang gak ada di list
+                    setForm((prev) => {
+                        const exists = list.some(
+                            (s) => s.value === prev.subcategory_id
+                        );
+                        return exists
+                            ? prev
+                            : { ...prev, subcategory_id: null };
+                    });
                 } else {
                     toast.error(res.data.msg || "Gagal load subcategory");
                 }
             } catch (err) {
-                // abort = normal
                 if (err?.name === "CanceledError") return;
                 console.error(err);
                 toast.error("Error mengambil data subcategory");
@@ -80,14 +123,12 @@ export default function CreateProduct({
         const retailPriceNum =
             form.retail_price === "" ? NaN : Number(form.retail_price);
 
-        // Validasi tegas
         if (!productName) return toast.error("Nama produk wajib diisi");
-        if (!form.brand_id) return toast.error("Pilih brand terlebih dahulu");
-        if (!form.category_id) return toast.error("Pilih kategori");
-        if (!form.unit_id) return toast.error("Pilih satuan");
+        if (!form.brand_id)
+            return toast.error("Pilih / tambah brand terlebih dahulu");
+        if (!form.category_id) return toast.error("Pilih / tambah kategori");
+        if (!form.unit_id) return toast.error("Pilih / tambah satuan");
 
-        // harga wajib >= 0 atau > 0? pilih salah satu.
-        // gue set minimal 0 (boleh gratis). Kalau wajib > 0, ganti jadi <= 0.
         if (!Number.isFinite(retailPriceNum) || retailPriceNum < 0) {
             return toast.error(
                 "Harga ecer wajib diisi dan tidak boleh negatif"
@@ -96,14 +137,13 @@ export default function CreateProduct({
 
         const data = {
             ...form,
-            product_code: productCode || "", // backend generate kalau kosong
+            product_code: productCode || "",
             product_name: productName,
             retail_price: retailPriceNum,
         };
 
         try {
             setLoading(true);
-
             const response = await axios.post("/admin/create-product", data);
 
             if (response.data.code !== 0) {
@@ -116,7 +156,6 @@ export default function CreateProduct({
                 JSON.stringify({ type: "success", msg: response.data.msg })
             );
 
-            // Inertia navigation (tanpa full reload)
             router.visit("/admin/list-product");
         } catch (error) {
             console.error(error);
@@ -125,6 +164,14 @@ export default function CreateProduct({
             setLoading(false);
         }
     };
+
+    // selected option helper
+    const selectedBrand = brands.find((b) => b.value === form.brand_id) || null;
+    const selectedCategory =
+        categories.find((c) => c.value === form.category_id) || null;
+    const selectedSub =
+        filteredSub.find((s) => s.value === form.subcategory_id) || null;
+    const selectedUnit = units.find((u) => u.value === form.unit_id) || null;
 
     return (
         <NewAuthenticated>
@@ -176,94 +223,216 @@ export default function CreateProduct({
                             />
                         </div>
 
+                        {/* BRAND (Creatable) */}
                         <div>
                             <label className="font-medium">Brand</label>
-                            <Select
+                            <CreatableSelect
                                 className="text-black"
-                                options={brandList}
-                                value={
-                                    brandList.find(
-                                        (b) => b.value === form.brand_id
-                                    ) || null
-                                }
+                                options={brands}
+                                value={selectedBrand}
                                 onChange={(opt) =>
                                     setForm((prev) => ({
                                         ...prev,
                                         brand_id: opt?.value ?? null,
                                     }))
                                 }
-                                placeholder="Pilih Brand"
+                                onCreateOption={async (inputValue) => {
+                                    const newOpt = await createMasterInline({
+                                        endpoint: "/admin/brand/create-inline",
+                                        name: inputValue,
+                                    });
+
+                                    if (!newOpt) return;
+
+                                    setBrands((prev) => [newOpt, ...prev]);
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        brand_id: newOpt.value,
+                                    }));
+                                }}
+                                placeholder="Pilih / ketik untuk tambah brand"
                                 isSearchable
                                 isClearable
                                 isDisabled={loading}
                             />
                         </div>
 
+                        {/* CATEGORY (Creatable) */}
                         <div>
                             <label className="font-medium">Kategori</label>
-                            <Select
+                            <CreatableSelect
                                 className="text-black"
-                                options={categoryList}
-                                value={
-                                    categoryList.find(
-                                        (c) => c.value === form.category_id
-                                    ) || null
-                                }
+                                options={categories}
+                                value={selectedCategory}
                                 onChange={(opt) =>
                                     setForm((prev) => ({
                                         ...prev,
                                         category_id: opt?.value ?? null,
                                     }))
                                 }
-                                placeholder="Pilih Kategori"
+                                onCreateOption={async (inputValue) => {
+                                    const newOpt = await createMasterInline({
+                                        endpoint:
+                                            "/admin/category/create-inline",
+                                        name: inputValue,
+                                    });
+                                    if (!newOpt) return;
+
+                                    setCategories((prev) => [newOpt, ...prev]);
+
+                                    // set category baru + reset subcategory
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        category_id: newOpt.value,
+                                        subcategory_id: null,
+                                    }));
+                                }}
+                                placeholder="Pilih / ketik untuk tambah kategori"
                                 isSearchable
                                 isClearable
                                 isDisabled={loading}
                             />
                         </div>
 
+                        {/* SUBCATEGORY (Creatable, dependent) */}
                         <div>
                             <label className="font-medium">
                                 Subkategori (opsional)
                             </label>
-                            <Select
-                                options={filteredSub}
+                            <CreatableSelect
                                 className="text-black"
-                                value={
-                                    filteredSub.find(
-                                        (s) => s.value === form.subcategory_id
-                                    ) || null
-                                }
+                                options={filteredSub}
+                                value={selectedSub}
                                 onChange={(opt) =>
                                     setForm((prev) => ({
                                         ...prev,
                                         subcategory_id: opt?.value ?? null,
                                     }))
                                 }
-                                placeholder="Pilih Subcategory"
+                                onCreateOption={async (inputValue) => {
+                                    if (!form.category_id) {
+                                        toast.error(
+                                            "Pilih kategori dulu sebelum menambah subkategori"
+                                        );
+                                        return;
+                                    }
+
+                                    const clean = (inputValue || "")
+                                        .trim()
+                                        .replace(/\s+/g, " ");
+                                    if (clean.length < 2) {
+                                        toast.error(
+                                            "Nama subkategori terlalu pendek"
+                                        );
+                                        return;
+                                    }
+
+                                    try {
+                                        const res = await axios.post(
+                                            "/admin/subcategory/create-inline",
+                                            {
+                                                category_id: form.category_id,
+                                                name: clean,
+                                            }
+                                        );
+
+                                        if (res.data.code !== 0) {
+                                            toast.error(
+                                                res.data.msg ||
+                                                    "Gagal menambah subkategori"
+                                            );
+                                            return;
+                                        } else {
+                                            toast.success(
+                                                "Subkategori berhasil ditambahkan!"
+                                            );
+                                        }
+
+                                        const newOpt = res.data.data; // { value, label }
+                                        setFilteredSub((prev) => {
+                                            const exists = prev.some(
+                                                (s) => s.value === newOpt.value
+                                            );
+                                            if (exists) return prev;
+                                            return [newOpt, ...prev];
+                                        });
+                                        setForm((prev) => ({
+                                            ...prev,
+                                            subcategory_id: newOpt.value,
+                                        }));
+                                    } catch (err) {
+                                        console.error(err);
+                                        toast.error(
+                                            "Server error saat menambah subkategori"
+                                        );
+                                    }
+                                }}
+                                placeholder={
+                                    form.category_id
+                                        ? "Pilih / ketik untuk tambah subkategori"
+                                        : "Pilih kategori dulu"
+                                }
                                 isDisabled={!form.category_id || loading}
                                 isSearchable
                                 isClearable
                             />
                         </div>
 
+                        {/* UNIT (Creatable) */}
                         <div>
                             <label className="font-medium">Satuan</label>
-                            <Select
-                                options={unitList}
+                            <CreatableSelect
                                 className="text-black"
-                                value={
-                                    unitList.find(
-                                        (u) => u.value === form.unit_id
-                                    ) || null
-                                }
+                                options={units}
+                                value={selectedUnit}
                                 onChange={(opt) =>
                                     setForm((prev) => ({
                                         ...prev,
                                         unit_id: opt?.value ?? null,
                                     }))
                                 }
-                                placeholder="Pilih Satuan"
+                                onCreateOption={async (inputValue) => {
+                                    try {
+                                        const res = await axios.post(
+                                            "/admin/unit/create-inline",
+                                            { name: inputValue }
+                                        );
+
+                                        if (res.data.code !== 0) {
+                                            toast.error(
+                                                res.data.msg ||
+                                                    "Gagal menambah satuan"
+                                            );
+                                            return;
+                                        }
+
+                                        const newOpt = res.data.data; // { value, label }
+
+                                        // OPTIONAL: prevent duplicate in state (kalau backend return existing)
+                                        setUnits((prev) => {
+                                            const exists = prev.some(
+                                                (u) => u.value === newOpt.value
+                                            );
+                                            if (exists) return prev;
+                                            return [newOpt, ...prev];
+                                        });
+
+                                        setForm((prev) => ({
+                                            ...prev,
+                                            unit_id: newOpt.value,
+                                        }));
+                                        toast.success(
+                                            res.data.msg ||
+                                                "Satuan berhasil ditambahkan!"
+                                        );
+                                    } catch (err) {
+                                        console.error(err);
+                                        toast.error(
+                                            "Server error saat menambah satuan"
+                                        );
+                                    }
+                                }}
+                                placeholder="Pilih / ketik untuk tambah satuan"
                                 isSearchable
                                 isClearable
                                 isDisabled={loading}

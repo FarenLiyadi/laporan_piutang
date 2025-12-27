@@ -49,8 +49,27 @@ class ProductController extends Controller
         ]);
     }
 
-  public function createProductView()
+
+  public function createProductView(Request $request)
 {
+    $duplicateId = $request->query('duplicate_id');
+
+    $prefill = null;
+    if ($duplicateId) {
+        $p = Product::where('id', $duplicateId)->firstOrFail();
+
+        $prefill = [
+            // product_code sengaja kosong biar generate baru
+            'product_code' => $p->product_code??"",
+            'product_name' => $p->product_name . ' (Copy)',
+            'brand_id' => $p->brand_id,
+            'category_id' => $p->category_id,
+            'subcategory_id' => $p->subcategory_id,
+            'unit_id' => $p->unit_id,
+            'retail_price' => $p->retail_price,
+            'wholesale_code' => $p->wholesale_code,
+        ];
+    }
     $brands = Brand::where('deleted_at', null)
         ->get()
         ->map(fn($b) => [
@@ -81,6 +100,7 @@ class ProductController extends Controller
         'categoryList'     => $categories,
         'subcategoryList'  => $subcategories,
         'unitList'         => $units,
+        'prefill' => $prefill,
     ]);
 }
 public function getSubcategoryByCategory(Request $request)
@@ -267,16 +287,16 @@ private function generateProductCode()
         }
 
        $product = Product::create([
-    'product_code'       => $productCode,
-    'product_name'       => $request->product_name,
-    'brand_id'           => $request->brand_id,
-    'category_id'        => $request->category_id,
-    'subcategory_id'     => $request->subcategory_id,
-    'unit_id'            => $request->unit_id,
-    'retail_price'       => $request->retail_price,
-    'wholesale_code'     => $request->wholesale_code,
+        'product_code'       => $productCode,
+        'product_name'       => $request->product_name,
+        'brand_id'           => $request->brand_id,
+        'category_id'        => $request->category_id,
+        'subcategory_id'     => $request->subcategory_id,
+        'unit_id'            => $request->unit_id,
+        'retail_price'       => $request->retail_price,
+        'wholesale_code'     => $request->wholesale_code,
 
-]);
+    ]);
 
 
         UserActivity::create([

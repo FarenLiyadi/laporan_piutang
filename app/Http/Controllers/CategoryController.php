@@ -291,7 +291,61 @@ public function destroy(Request $request)
     return $this->createResponse($this->dataMsg, $this->code, $this->message);
 }
 
+public function createInline(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|min:2|max:80',
+    ]);
 
+    try {
+        if ($validator->fails()) {
+            $this->code = 1;
+            throw new Exception($validator->errors()->first());
+        }
+
+        $name = trim($request->input('name'));
+        $name = preg_replace('/\s+/', ' ', $name);
+
+        // Anti duplikat (case-insensitive)
+        $existing = Category::whereRaw('LOWER(category_name) = ?', [mb_strtolower($name)])
+            ->first();
+
+        if ($existing) {
+            $this->code = 0;
+            $this->message = "Kategori sudah ada, dipilih otomatis.";
+            $this->dataMsg = [
+                'value' => $existing->id,
+                'label' => $existing->category_name,
+            ];
+            return $this->createResponse($this->dataMsg, $this->code, $this->message);
+        }
+
+        $category = Category::create([
+            'category_name' => $name,
+        ]);
+
+        UserActivity::create([
+            "id"            => Uuid::uuid1(),
+            "username"      => Auth::user()->username,
+            "description"   => "Create New Category " . $name,
+            "activity_type" => (int) 1,
+            "created_by"    => Auth::user()->username,
+        ]);
+
+        $this->code = 0;
+        $this->message = "Kategori berhasil ditambahkan.";
+        $this->dataMsg = [
+            'value' => $category->id,
+            'label' => $category->category_name,
+        ];
+    } catch (Exception $e) {
+        $this->code = 1;
+        $this->message = $e->getMessage();
+        $this->dataMsg = null;
+    }
+
+    return $this->createResponse($this->dataMsg, $this->code, $this->message);
+}
 
 
 }

@@ -90,7 +90,7 @@ class BrandController extends Controller
     {
 
         $brand_name = $request->input('brand_name');
-        Log::info('Brand Name: ' . $brand_name);
+        // Log::info('Brand Name: ' . $brand_name);
      
         $page       = $request->input('page', 1);
         $length     = $request->input('length', 10);
@@ -283,6 +283,63 @@ class BrandController extends Controller
     }
     catch (Exception $e) {
         $this->message = $e->getMessage();
+    }
+
+    return $this->createResponse($this->dataMsg, $this->code, $this->message);
+}
+public function createInline(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|min:2|max:80',
+    ]);
+
+    try {
+        if ($validator->fails()) {
+            $this->code = 1;
+            throw new Exception($validator->errors()->first());
+        }
+
+        $name = trim($request->input('name'));
+        $name = preg_replace('/\s+/', ' ', $name);
+
+        // Anti duplikat (case-insensitive)
+        $existing = Brand::whereNull('deleted_at')
+            ->whereRaw('LOWER(brand_name) = ?', [mb_strtolower($name)])
+            ->first();
+
+        if ($existing) {
+            $this->code = 0;
+            $this->message = "Brand sudah ada, dipilih otomatis.";
+            $this->dataMsg = [
+                'value' => $existing->id,
+                'label' => $existing->brand_name,
+            ];
+            return $this->createResponse($this->dataMsg, $this->code, $this->message);
+        }
+
+        $brand = Brand::create([
+            "brand_name" => $name,
+        ]);
+
+        // User Activity
+        UserActivity::create([
+            "id"            => Uuid::uuid1(),
+            "username"      => Auth::user()->username,
+            "description"   => "Create New Brand " . $name,
+            "activity_type" => (int) 1,
+            "created_by"    => Auth::user()->username,
+        ]);
+
+        $this->code = 0;
+        $this->message = "Brand berhasil ditambahkan.";
+        $this->dataMsg = [
+            'value' => $brand->id,
+            'label' => $brand->brand_name,
+        ];
+    } catch (Exception $e) {
+        $this->code = 1;
+        $this->message = $e->getMessage();
+        $this->dataMsg = null;
     }
 
     return $this->createResponse($this->dataMsg, $this->code, $this->message);

@@ -42,6 +42,7 @@ import { IoIosLogOut } from "react-icons/io";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import NewNavLink from "@/Components/NewNavLink";
 import HasPermission from "@/Components/HasPermission";
+import { useEffect } from "react";
 
 export function Sidenav({ access }) {
     const [controller, dispatch] = useMaterialTailwindController();
@@ -69,6 +70,41 @@ export function Sidenav({ access }) {
         REPORT_PIUTANG_BEREDAR: "130",
         REPORT_PEMBAYARAN: "132",
     };
+    const isAdminRouteActive = () =>
+        route().current("list.user.view") ||
+        route().current("detail.user.view") ||
+        route().current("update.user.view") ||
+        route().current("create.user.view") ||
+        route().current("list.access-right.view") ||
+        route().current("create.access-right.view") ||
+        route().current("update.access-right.view") ||
+        route().current("detail.access-right.view") ||
+        route().current("list.user.activity.view");
+
+    const isMasterRouteActive = () =>
+        route().current("list.bank.view") ||
+        route().current("list.customers.view") ||
+        route().current("list.sales.view") ||
+        route().current("list.brand.view") ||
+        route().current("list.category.view") ||
+        route().current("list.subcategory.view") ||
+        route().current("list.unit.view") ||
+        route().current("list.product.view") ||
+        route().current("list.label.view");
+
+    const isReportRouteActive = () =>
+        route().current("report-piutang-beredar.view") ||
+        route().current("report.piutang.beredar.user.view") ||
+        route().current("report.pembayaran.view") ||
+        route().current("report.pembayaran.user.view");
+
+    useEffect(() => {
+        // buka otomatis kalau sedang di route sub-menu terkait
+        if (AdminGroup) SetOpenAdminData(isAdminRouteActive());
+        if (MasterGroup) SetOpenMasterData(isMasterRouteActive());
+        if (ReportGroup) SetOpenReportData(isReportRouteActive());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const groupAdminAccess = () => {
         // Ensure access and access.details are defined

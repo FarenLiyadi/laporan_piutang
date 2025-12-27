@@ -291,6 +291,60 @@ public function destroy(Request $request)
 }
 
 
+public function createInline(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|min:1|max:30',
+    ]);
+
+    try {
+        if ($validator->fails()) {
+            $this->code = 1;
+            throw new Exception($validator->errors()->first());
+        }
+
+        $name = trim($request->input('name'));
+        $name = preg_replace('/\s+/', ' ', $name);
+
+        // Anti duplikat (case-insensitive)
+        $existing = Unit::whereRaw('LOWER(unit_name) = ?', [mb_strtolower($name)])->first();
+
+        if ($existing) {
+            $this->code = 0;
+            $this->message = "Satuan sudah ada, dipilih otomatis.";
+            $this->dataMsg = [
+                'value' => $existing->id,
+                'label' => $existing->unit_name,
+            ];
+            return $this->createResponse($this->dataMsg, $this->code, $this->message);
+        }
+
+        $unit = Unit::create([
+            'unit_name' => $name,
+        ]);
+
+        UserActivity::create([
+            "id"            => Uuid::uuid1(),
+            "username"      => Auth::user()->username,
+            "description"   => "Create New Unit " . $name,
+            "activity_type" => (int) 1,
+            "created_by"    => Auth::user()->username,
+        ]);
+
+        $this->code = 0;
+        $this->message = "Satuan berhasil ditambahkan.";
+        $this->dataMsg = [
+            'value' => $unit->id,
+            'label' => $unit->unit_name,
+        ];
+    } catch (Exception $e) {
+        $this->code = 1;
+        $this->message = $e->getMessage();
+        $this->dataMsg = null;
+    }
+
+    return $this->createResponse($this->dataMsg, $this->code, $this->message);
+}
 
 
 }
