@@ -1,6 +1,6 @@
 import NewAuthenticated from "@/Layouts/NewAuthenticated";
 import { useState, useEffect } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import axios from "axios";
 import Select from "react-select";
 import { toast } from "react-toastify";
@@ -11,7 +11,7 @@ export default function CreateProduct({
     auth,
     brandList,
     categoryList,
-    subcategoryList, // sementara tidak dipakai, biarin saja
+    subcategoryList, // kalau gak dipakai, mending hapus dari props
     unitList,
 }) {
     const [loading, setLoading] = useState(false);
@@ -23,63 +23,82 @@ export default function CreateProduct({
         category_id: null,
         subcategory_id: null,
         unit_id: null,
-        retail_price: "",
+        retail_price: "", // string biar input enak
         wholesale_code: "",
     });
 
     const [filteredSub, setFilteredSub] = useState([]);
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    // === DEPENDENT DROPDOWN: SUBCATEGORY BERDASARKAN CATEGORY ===
+    // Dependent dropdown dengan cancel request
     useEffect(() => {
-        if (!form.category_id) {
+        const categoryId = form.category_id;
+
+        // reset kalau category kosong
+        if (!categoryId) {
             setFilteredSub([]);
             setForm((prev) => ({ ...prev, subcategory_id: null }));
             return;
         }
 
-        const fetchSub = async () => {
+        const controller = new AbortController();
+
+        (async () => {
             try {
                 const res = await axios.get("/admin/subcategory-by-category", {
-                    params: { category_id: form.category_id },
+                    params: { category_id: categoryId },
+                    signal: controller.signal,
                 });
 
                 if (res.data.code === 0) {
-                    setFilteredSub(res.data.data);
-                    // reset subcategory ketika category ganti
+                    setFilteredSub(res.data.data || []);
                     setForm((prev) => ({ ...prev, subcategory_id: null }));
                 } else {
                     toast.error(res.data.msg || "Gagal load subcategory");
                 }
-            } catch (error) {
-                console.error(error);
+            } catch (err) {
+                // abort = normal
+                if (err?.name === "CanceledError") return;
+                console.error(err);
                 toast.error("Error mengambil data subcategory");
             }
-        };
+        })();
 
-        fetchSub();
+        return () => controller.abort();
     }, [form.category_id]);
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        if (loading) return;
 
-        // VALIDASI DASAR
-        if (!form.product_name.trim())
-            return toast.error("Nama produk wajib diisi");
+        const productName = form.product_name.trim();
+        const productCode = form.product_code.trim();
+        const retailPriceNum =
+            form.retail_price === "" ? NaN : Number(form.retail_price);
+
+        // Validasi tegas
+        if (!productName) return toast.error("Nama produk wajib diisi");
         if (!form.brand_id) return toast.error("Pilih brand terlebih dahulu");
         if (!form.category_id) return toast.error("Pilih kategori");
         if (!form.unit_id) return toast.error("Pilih satuan");
-        if (Number(form.retail_price) <= -1)
-            return toast.error("Harga ecer tidak boleh kosong atau negatif");
+
+        // harga wajib >= 0 atau > 0? pilih salah satu.
+        // gue set minimal 0 (boleh gratis). Kalau wajib > 0, ganti jadi <= 0.
+        if (!Number.isFinite(retailPriceNum) || retailPriceNum < 0) {
+            return toast.error(
+                "Harga ecer wajib diisi dan tidak boleh negatif"
+            );
+        }
 
         const data = {
             ...form,
-            retail_price: Number(form.retail_price),
-            // kalau backend lu pakai wholesale_item_code, ubah ini:
-            // wholesale_item_code: form.wholesale_code,
+            product_code: productCode || "", // backend generate kalau kosong
+            product_name: productName,
+            retail_price: retailPriceNum,
         };
 
         try {
@@ -94,12 +113,11 @@ export default function CreateProduct({
 
             localStorage.setItem(
                 "notif",
-                JSON.stringify({
-                    type: "success",
-                    msg: response.data.msg,
-                })
+                JSON.stringify({ type: "success", msg: response.data.msg })
             );
-            window.location.href = "/admin/list-product";
+
+            // Inertia navigation (tanpa full reload)
+            router.visit("/admin/list-product");
         } catch (error) {
             console.error(error);
             toast.error("Gagal menyimpan produk (server error)");
@@ -132,7 +150,6 @@ export default function CreateProduct({
                         onSubmit={submitHandler}
                         className="grid grid-cols-2 gap-4"
                     >
-                        {/* KODE PRODUK */}
                         <div>
                             <label className="font-medium">
                                 Kode Produk (kosongkan = generate by system)
@@ -143,10 +160,10 @@ export default function CreateProduct({
                                 className="w-full p-2 mt-1 rounded bg-white text-black"
                                 value={form.product_code}
                                 onChange={handleChange}
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* NAMA PRODUK */}
                         <div>
                             <label className="font-medium">Nama Produk</label>
                             <input
@@ -155,11 +172,10 @@ export default function CreateProduct({
                                 className="w-full p-2 mt-1 rounded bg-white text-black"
                                 value={form.product_name}
                                 onChange={handleChange}
-                                required
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* BRAND */}
                         <div>
                             <label className="font-medium">Brand</label>
                             <Select
@@ -171,18 +187,18 @@ export default function CreateProduct({
                                     ) || null
                                 }
                                 onChange={(opt) =>
-                                    setForm({
-                                        ...form,
-                                        brand_id: opt?.value || null,
-                                    })
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        brand_id: opt?.value ?? null,
+                                    }))
                                 }
                                 placeholder="Pilih Brand"
                                 isSearchable
                                 isClearable
+                                isDisabled={loading}
                             />
                         </div>
 
-                        {/* CATEGORY */}
                         <div>
                             <label className="font-medium">Kategori</label>
                             <Select
@@ -194,18 +210,18 @@ export default function CreateProduct({
                                     ) || null
                                 }
                                 onChange={(opt) =>
-                                    setForm({
-                                        ...form,
-                                        category_id: opt?.value || null,
-                                    })
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        category_id: opt?.value ?? null,
+                                    }))
                                 }
                                 placeholder="Pilih Kategori"
                                 isSearchable
                                 isClearable
+                                isDisabled={loading}
                             />
                         </div>
 
-                        {/* SUBCATEGORY (OPTIONAL, DEPENDENT) */}
                         <div>
                             <label className="font-medium">
                                 Subkategori (opsional)
@@ -219,19 +235,18 @@ export default function CreateProduct({
                                     ) || null
                                 }
                                 onChange={(opt) =>
-                                    setForm({
-                                        ...form,
-                                        subcategory_id: opt?.value || null,
-                                    })
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        subcategory_id: opt?.value ?? null,
+                                    }))
                                 }
                                 placeholder="Pilih Subcategory"
-                                isDisabled={!form.category_id}
+                                isDisabled={!form.category_id || loading}
                                 isSearchable
                                 isClearable
                             />
                         </div>
 
-                        {/* UNIT */}
                         <div>
                             <label className="font-medium">Satuan</label>
                             <Select
@@ -243,22 +258,22 @@ export default function CreateProduct({
                                     ) || null
                                 }
                                 onChange={(opt) =>
-                                    setForm({
-                                        ...form,
-                                        unit_id: opt?.value || null,
-                                    })
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        unit_id: opt?.value ?? null,
+                                    }))
                                 }
                                 placeholder="Pilih Satuan"
                                 isSearchable
                                 isClearable
+                                isDisabled={loading}
                             />
                         </div>
 
-                        {/* HARGA ECER */}
                         <div>
                             <label className="font-medium">
                                 Harga Ecer (
-                                {form.retail_price
+                                {form.retail_price !== ""
                                     ? rupiah(form.retail_price)
                                     : "Rp 0"}
                                 )
@@ -266,13 +281,14 @@ export default function CreateProduct({
                             <input
                                 name="retail_price"
                                 type="number"
+                                min="0"
                                 className="w-full p-2 mt-1 rounded bg-white text-black"
                                 value={form.retail_price}
                                 onChange={handleChange}
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* WHOLESALE CODE */}
                         <div>
                             <label className="font-medium">
                                 Kode Grosir Internal
@@ -283,16 +299,17 @@ export default function CreateProduct({
                                 className="w-full p-2 mt-1 rounded bg-white text-black"
                                 value={form.wholesale_code}
                                 onChange={handleChange}
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* SUBMIT */}
                         <div className="col-span-2 mt-4">
                             <button
                                 type="submit"
-                                className="w-full bg-gold py-3 rounded text-white font-semibold"
+                                disabled={loading}
+                                className="w-full bg-gold py-3 rounded text-white font-semibold disabled:opacity-60"
                             >
-                                Simpan Produk
+                                {loading ? "Menyimpan..." : "Simpan Produk"}
                             </button>
                         </div>
                     </form>

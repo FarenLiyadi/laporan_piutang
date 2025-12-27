@@ -125,22 +125,21 @@ Route::middleware('auth')->group(function () {
 
 
            // Cart pilih produk
-Route::get('/list-label', 'labelView')
-    ->name('product.label')
-    ->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
+            Route::get('/list-label', 'labelView')
+                ->name('product.label')
+                ->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
 
-// Page print -> dari localStorage, frontend only
-Route::get('/print-label', function() {
-    return Inertia::render('Product/PrintLabel');
-})
-->name('product.print')
-->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
+            // Page print -> dari localStorage, frontend only
+            Route::get('/print-label', function() {
+                return Inertia::render('Product/PrintLabel');
+            })
+            ->name('product.print')
+            ->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
 
-Route::get('/search-product', 'searchProduct')
-    ->name('product.search')
-    ->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
-
-        });
+            Route::get('/search-product', 'searchProduct')
+                ->name('product.search')
+                ->middleware('access.check:' . MenuDB::LABEL_AR . ',r');
+            });
         Route::controller(PembayaranController::class)->group(function () {
             Route::get('/list-pembayaran', 'listPembayaranView')->name('list.pembayaran.view')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');
             Route::get('/list-pembayaran-request', 'listCustomerPembayaran')->name('list.pembayaran')->middleware('access.check:'. MenuDB::PEMBAYARAN_AR .',r');

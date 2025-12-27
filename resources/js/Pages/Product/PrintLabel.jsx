@@ -32,25 +32,28 @@ export default function PrintLabel() {
 
         .label-row {
             width: 7cm;
-            height: 1.6cm;
+            height: 1.9cm;
             display: grid;
             grid-template-columns: 3.3cm 3.3cm;
-            column-gap: 0.4cm;
+            column-gap: 0.3cm;
             page-break-inside: avoid;
         }
 
         .label-box {
             width: 3.3cm;
             height: 1.5cm;
-            padding: 1mm;
             padding-left: 2mm;
+            padding-top: 1mm;
+            padding-bottom: 1mm;
+            padding-right: 1mm;
             overflow: hidden;
-            font-size: 8px;
-            line-height: 1.1;
+            font-size: 9.5px;
+            font-weight: bold;
+            line-height: 1;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: start;
         }
     `;
     const truncate = (text, max) => {
@@ -65,17 +68,19 @@ export default function PrintLabel() {
                 <div className="label-row" key={i}>
                     {row.map((item, j) => (
                         <div className="label-box" key={j}>
-                            <div>{truncate(item.product_name, 55)}</div>
+                            <div>{truncate(item.product_name, 50)}</div>
 
-                            <div className="mt-[1px]">{item.product_code}</div>
-                            <div className="mb-[1px] mt-[1px]">
-                                {item.wholesale_code} / {item.unit_name}
+                            <div className="text-[9px] mt-[1px]">
+                                {item.product_code} /{" "}
+                                {item.wholesale_code ?? "-"}
                             </div>
+
                             <div>
                                 Rp{" "}
                                 {Number(item.retail_price).toLocaleString(
                                     "id-ID"
-                                )}
+                                )}{" "}
+                                / {item.unit_name}
                             </div>
                         </div>
                     ))}
